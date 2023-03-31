@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.hibernate.SessionFactory;
 import ru.job4j.cars.model.User;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,8 @@ public class UserRepository {
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            sf.close();
         }
         return user;
     }
@@ -44,6 +47,8 @@ public class UserRepository {
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
     }
 
@@ -62,6 +67,8 @@ public class UserRepository {
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
     }
 
@@ -71,10 +78,16 @@ public class UserRepository {
      */
     public List<User> findAllOrderById() {
         var session = sf.openSession();
-        var query = session.createQuery(
-                "FROM User ORDER BY id ASC", User.class
-        );
-        return query.list();
+        List<User> result = Collections.emptyList();
+        try {
+            var hql = "FROM User ORDER BY id ASC";
+            result = session.createQuery(hql, User.class).list();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 
     /**
@@ -83,10 +96,18 @@ public class UserRepository {
      */
     public Optional<User> findById(int id) {
         var session = sf.openSession();
-        var query = session.createQuery(
-                "FROM User WHERE id = :fId", User.class);
-        query.setParameter("fId", id);
-        return Optional.ofNullable(query.uniqueResult());
+        Optional<User> result = Optional.empty();
+        try {
+            var hql = "FROM User WHERE id = :fId";
+            result = session.createQuery(hql, User.class)
+                     .setParameter("fId", id)
+                     .uniqueResultOptional();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 
     /**
@@ -96,10 +117,18 @@ public class UserRepository {
      */
     public List<User> findByLikeLogin(String key) {
         var session = sf.openSession();
-        var query = session.createQuery(
-                "FROM User WHERE login LIKE :fKey", User.class);
-        query.setParameter("fKey", "%" + key + "%");
-        return query.list();
+        List<User> result = Collections.emptyList();
+        try {
+            var hql = "FROM User WHERE login LIKE :fKey";
+            result = session.createQuery(hql, User.class)
+                    .setParameter("fKey", "%" + key + "%")
+                    .list();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 
     /**
@@ -112,6 +141,6 @@ public class UserRepository {
         var query = session.createQuery(
                 "FROM User WHERE login = :fLogin", User.class);
         query.setParameter("fLogin", login);
-        return Optional.ofNullable(query.uniqueResult());
+        return query.uniqueResultOptional();
     }
 }
