@@ -80,8 +80,9 @@ public class UserRepository {
         var session = sf.openSession();
         List<User> result = Collections.emptyList();
         try {
-            var hql = "FROM User ORDER BY id ASC";
-            result = session.createQuery(hql, User.class).list();
+            session.beginTransaction();
+            result = session.createQuery("FROM User ORDER BY id ASC", User.class).list();
+            session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
@@ -98,10 +99,12 @@ public class UserRepository {
         var session = sf.openSession();
         Optional<User> result = Optional.empty();
         try {
-            var hql = "FROM User WHERE id = :fId";
-            result = session.createQuery(hql, User.class)
+            session.beginTransaction();
+            result = session.createQuery(
+                    "FROM User WHERE id = :fId", User.class)
                      .setParameter("fId", id)
                      .uniqueResultOptional();
+            session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
@@ -119,10 +122,12 @@ public class UserRepository {
         var session = sf.openSession();
         List<User> result = Collections.emptyList();
         try {
-            var hql = "FROM User WHERE login LIKE :fKey";
-            result = session.createQuery(hql, User.class)
+            session.beginTransaction();
+            result = session.createQuery(
+                    "FROM User WHERE login LIKE :fKey", User.class)
                     .setParameter("fKey", "%" + key + "%")
                     .list();
+            session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
@@ -138,9 +143,19 @@ public class UserRepository {
      */
     public Optional<User> findByLogin(String login) {
         var session = sf.openSession();
-        var query = session.createQuery(
-                "FROM User WHERE login = :fLogin", User.class);
-        query.setParameter("fLogin", login);
-        return query.uniqueResultOptional();
+        Optional<User> result = Optional.empty();
+        try {
+            session.beginTransaction();
+            var query = session.createQuery(
+                    "FROM User WHERE login = :fLogin", User.class);
+            query.setParameter("fLogin", login);
+            result = query.uniqueResultOptional();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 }
