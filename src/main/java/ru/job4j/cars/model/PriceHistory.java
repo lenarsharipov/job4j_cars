@@ -23,13 +23,13 @@ public class PriceHistory {
     @ToString.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ToString.Include
-    private long before;
+    private Long before;
 
     @ToString.Include
-    private long after;
+    private Long after;
 
     private LocalDateTime created = LocalDateTime.now();
 
