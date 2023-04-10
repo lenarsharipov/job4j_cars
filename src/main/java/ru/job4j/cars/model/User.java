@@ -20,5 +20,5 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "auto_post")
-    List<Post> posts = new ArrayList<>();
+    private List<Post> posts = new ArrayList<>();
 }
