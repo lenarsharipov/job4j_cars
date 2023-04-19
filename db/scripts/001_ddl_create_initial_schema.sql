@@ -1,14 +1,12 @@
-create table auto_user
-(
-    id          serial primary key,
-    login       varchar not null unique,
-    password    varchar not null
+CREATE TABLE auto_user (
+    id          SERIAL PRIMARY KEY,
+    login       VARCHAR NOT NULL UNIQUE,
+    password    VARCHAR NOT NULL
 );
 
-create table auto_post
-(
-    id              serial primary key,
-    description     varchar                         not null,
-    created         timestamp                       not null,
-    auto_user_id    int references auto_user (id)  not null
+CREATE TABLE post (
+    id              SERIAL PRIMARY KEY,
+    description     VARCHAR NOT NULL,
+    created         TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    auto_user_id    INT REFERENCES auto_user (id) NOT NULL
 );

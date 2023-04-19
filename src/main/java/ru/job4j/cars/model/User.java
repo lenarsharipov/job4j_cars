@@ -19,6 +19,6 @@ public class User {
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "auto_post")
+    @JoinColumn(name = "post")
     private List<Post> posts = new ArrayList<>();
 }
