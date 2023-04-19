@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.PriceHistory;
+import ru.job4j.cars.util.Key;
+import ru.job4j.cars.util.Message;
+import ru.job4j.cars.util.PriceHistoryQuery;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +35,7 @@ public class PriceHistoryRepository {
             crudRepository.run(session -> session.persist(priceHistory));
             result = Optional.of(priceHistory);
         } catch (Exception exception) {
-            LOG.error("Unable to save a specified PriceHistory", exception);
+            LOG.error(Message.PRICE_HISTORY_NOT_SAVED, exception);
         }
         return result;
     }
@@ -47,7 +50,7 @@ public class PriceHistoryRepository {
             crudRepository.run(session -> session.merge(priceHistory));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to update a specified PriceHistory", exception);
+            LOG.error(Message.PRICE_HISTORY_NOT_UPDATED, exception);
         }
         return result;
     }
@@ -59,13 +62,10 @@ public class PriceHistoryRepository {
     public boolean delete(int id) {
         var result = true;
         try {
-            crudRepository.run(
-                    "DELETE FROM PriceHistory WHERE id = :fId",
-                    Map.of("fId", id)
-            );
+            crudRepository.run(PriceHistoryQuery.DELETE, Map.of(Key.F_ID, id));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to delete the PriceHistory specified by ID ", exception);
+            LOG.error(Message.PRICE_HISTORY_NOT_DELETED, exception);
         }
         return result;
     }
@@ -77,9 +77,9 @@ public class PriceHistoryRepository {
     public List<PriceHistory> findAllOrderById() {
         List<PriceHistory> result = Collections.emptyList();
         try {
-            result = crudRepository.query("FROM PriceHistory ORDER BY id ASC", PriceHistory.class);
+            result = crudRepository.query(PriceHistoryQuery.FIND_ALL, PriceHistory.class);
         } catch (Exception exception) {
-            LOG.error("Unable to list PriHistories", exception);
+            LOG.error(Message.PRICE_HISTORIES_NOT_LISTED, exception);
         }
         return result;
     }
@@ -92,11 +92,11 @@ public class PriceHistoryRepository {
         Optional<PriceHistory> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    "FROM PriceHistory WHERE id = :fId", PriceHistory.class,
-                    Map.of("fId", id)
+                    PriceHistoryQuery.FIND_BY_ID, PriceHistory.class,
+                    Map.of(Key.F_ID, id)
             );
         } catch (Exception exception) {
-            LOG.error("Unable to get the PriceHistory specified by ID");
+            LOG.error(Message.PRICE_HISTORY_NOT_FOUND, exception);
         }
         return result;
     }

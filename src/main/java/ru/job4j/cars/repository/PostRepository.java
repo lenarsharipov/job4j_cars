@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.Post;
+import ru.job4j.cars.util.Key;
+import ru.job4j.cars.util.Message;
+import ru.job4j.cars.util.PostQuery;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +35,7 @@ public class PostRepository {
             crudRepository.run(session -> session.persist(post));
             result = Optional.of(post);
         } catch (Exception exception) {
-            LOG.error("Unable to save a specified Post", exception);
+            LOG.error(Message.POST_NOT_SAVED, exception);
         }
         return result;
     }
@@ -47,7 +50,7 @@ public class PostRepository {
             crudRepository.run(session -> session.merge(post));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to update a specified Post", exception);
+            LOG.error(Message.POST_NOT_UPDATED, exception);
         }
         return result;
     }
@@ -59,13 +62,10 @@ public class PostRepository {
     public boolean delete(int id) {
         var result = true;
         try {
-            crudRepository.run(
-                    "DELETE FROM Post WHERE id = :fId",
-                    Map.of("fId", id)
-            );
+            crudRepository.run(PostQuery.DELETE, Map.of(Key.F_ID, id));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to delete Post with specified ID", exception);
+            LOG.error(Message.POST_NOT_DELETED, exception);
         }
         return result;
     }
@@ -77,16 +77,9 @@ public class PostRepository {
     public List<Post> findAllOrderById() {
         List<Post> result = Collections.emptyList();
         try {
-            result = crudRepository.query(
-                    """
-                            SELECT DISTINCT p
-                            FROM Post p
-                            LEFT JOIN FETCH p.priceHistories
-                            LEFT JOIN FETCH p.participates
-                            ORDER BY id ASC
-                            """, Post.class);
+            result = crudRepository.query(PostQuery.FIND_ALL, Post.class);
         } catch (Exception exception) {
-            LOG.error("Unable to list Posts", exception);
+            LOG.error(Message.POSTS_NOT_LISTED, exception);
         }
         return result;
     }
@@ -99,18 +92,10 @@ public class PostRepository {
         Optional<Post> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    """
-                            SELECT DISTINCT p
-                            FROM Post p
-                            LEFT JOIN FETCH p.priceHistories
-                            LEFT JOIN FETCH p.participates
-                            WHERE id = :fId
-                            ORDER BY id ASC
-                            """, Post.class,
-                    Map.of("fId", id)
+                    PostQuery.FIND_BY_ID, Post.class, Map.of(Key.F_ID, id)
             );
         } catch (Exception exception) {
-            LOG.error("Unable to get the Post specified by ID", exception);
+            LOG.error(Message.POST_NOT_FOUND, exception);
         }
         return result;
     }

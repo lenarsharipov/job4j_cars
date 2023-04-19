@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.User;
+import ru.job4j.cars.util.Key;
+import ru.job4j.cars.util.Message;
+import ru.job4j.cars.util.UserQuery;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +35,7 @@ public class UserRepository {
             crudRepository.run(session -> session.persist(user));
             result = Optional.of(user);
         } catch (Exception exception) {
-            LOG.error("Unable to save a specified User", exception);
+            LOG.error(Message.USER_NOT_SAVED, exception);
         }
         return result;
     }
@@ -47,7 +50,7 @@ public class UserRepository {
             crudRepository.run(session -> session.merge(user));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to update a specified User", exception);
+            LOG.error(Message.USER_NOT_UPDATED, exception);
         }
         return result;
     }
@@ -59,13 +62,10 @@ public class UserRepository {
     public boolean delete(int id) {
         var result = true;
         try {
-            crudRepository.run(
-                    "DELETE FROM User WHERE id = :fId",
-                    Map.of("fId", id)
-            );
+            crudRepository.run(UserQuery.DELETE, Map.of(Key.F_ID, id));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to delete User with a specified ID", exception);
+            LOG.error(Message.USER_NOT_DELETED, exception);
         }
         return result;
     }
@@ -77,9 +77,9 @@ public class UserRepository {
     public List<User> findAllOrderById() {
         List<User> result = Collections.emptyList();
         try {
-            result = crudRepository.query("FROM User ORDER BY id ASC", User.class);
+            result = crudRepository.query(UserQuery.FIND_ALL, User.class);
         } catch (Exception exception) {
-            LOG.error("Unable to list Users", exception);
+            LOG.error(Message.USERS_NOT_LISTED, exception);
         }
         return result;
     }
@@ -92,11 +92,9 @@ public class UserRepository {
         Optional<User> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    "FROM User WHERE id = :fId", User.class,
-                    Map.of("fId", id)
-            );
+                    UserQuery.FIND_BY_ID, User.class, Map.of(Key.F_ID, id));
         } catch (Exception exception) {
-            LOG.error("Unable to get the User specified by ID");
+            LOG.error(Message.USER_NOT_FOUND_BY_ID, exception);
         }
         return result;
     }
@@ -110,11 +108,11 @@ public class UserRepository {
         List<User> result = Collections.emptyList();
         try {
             result = crudRepository.query(
-                    "FROM User u WHERE u.login LIKE :fKey", User.class,
-                    Map.of("fKey", "%" + key + "%")
+                    UserQuery.FIND_BY_LIKE_LOGIN, User.class,
+                    Map.of(Key.F_KEY, "%" + key + "%")
             );
         } catch (Exception exception) {
-            LOG.error("Unable to get Users specified by login", exception);
+            LOG.error(Message.USERS_NOT_FOUND_BY_LIKE_LOGIN, exception);
         }
         return result;
     }
@@ -128,11 +126,11 @@ public class UserRepository {
         Optional<User> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    "FROM User u WHERE u.login = :fLogin", User.class,
-                    Map.of("fLogin", login)
+                    UserQuery.FIND_BY_LOGIN, User.class,
+                    Map.of(Key.F_LOGIN, login)
             );
         } catch (Exception exception) {
-            LOG.error("Unable to get User specified by login", exception);
+            LOG.error(Message.USER_NOT_FOUND_BY_LOGIN, exception);
         }
         return result;
     }

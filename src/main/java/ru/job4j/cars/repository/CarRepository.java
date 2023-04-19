@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.Car;
+import ru.job4j.cars.util.CarQuery;
+import ru.job4j.cars.util.Key;
+import ru.job4j.cars.util.Message;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +35,7 @@ public class CarRepository {
             crudRepository.run(session -> session.persist(car));
             result = Optional.of(car);
         } catch (Exception exception) {
-            LOG.error("Unable to save a specified Task", exception);
+            LOG.error(Message.CAR_NOT_SAVED, exception);
         }
         return result;
     }
@@ -47,7 +50,7 @@ public class CarRepository {
             crudRepository.run(session -> session.merge(car));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to update a specified Car", exception);
+            LOG.error(Message.CAR_NOT_UPDATED, exception);
         }
         return result;
     }
@@ -59,13 +62,10 @@ public class CarRepository {
     public boolean delete(int id) {
         var result = true;
         try {
-            crudRepository.run(
-                    "DELETE FROM Car c WHERE c.id = :fId",
-                    Map.of("fId", id)
-            );
+            crudRepository.run(CarQuery.DELETE, Map.of(Key.F_ID, id));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to delete Car with specified id", exception);
+            LOG.error(Message.CAR_NOT_DELETED, exception);
         }
         return result;
     }
@@ -77,15 +77,9 @@ public class CarRepository {
     public List<Car> findAllOrderById() {
         List<Car> result = Collections.emptyList();
         try {
-            result = crudRepository.query(
-                    """
-                            SELECT DISTINCT c
-                            FROM Car c
-                            LEFT JOIN FETCH c.owners
-                            ORDER BY id ASC
-                            """, Car.class);
+            result = crudRepository.query(CarQuery.FIND_ALL, Car.class);
         } catch (Exception exception) {
-            LOG.error("Unable to list cars", exception);
+            LOG.error(Message.CARS_NOT_LISTED, exception);
         }
         return result;
     }
@@ -98,17 +92,10 @@ public class CarRepository {
         Optional<Car> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    """
-                            SELECT DISTINCT c
-                            FROM Car c
-                            JOIN FETCH p.owners
-                            WHERE id = :fId
-                            ORDER BY id ASC
-                            """, Car.class,
-                    Map.of("fId", id)
+                    CarQuery.FIND_BY_ID, Car.class, Map.of(Key.F_ID, id)
             );
         } catch (Exception exception) {
-            LOG.error("Unable to find a Task with specified ID");
+            LOG.error(Message.CAR_NOT_FOUND, exception);
         }
         return result;
     }

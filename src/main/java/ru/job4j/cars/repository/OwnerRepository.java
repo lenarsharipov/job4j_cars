@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.Owner;
+import ru.job4j.cars.util.Key;
+import ru.job4j.cars.util.Message;
+import ru.job4j.cars.util.OwnerQuery;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +35,7 @@ public class OwnerRepository {
             crudRepository.run(session -> session.persist(owner));
             result = Optional.of(owner);
         } catch (Exception exception) {
-            LOG.error("Unable to save a specified engine", exception);
+            LOG.error(Message.OWNER_NOT_SAVED, exception);
         }
         return result;
     }
@@ -47,7 +50,7 @@ public class OwnerRepository {
             crudRepository.run(session -> session.merge(owner));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to update a specified Owner", exception);
+            LOG.error(Message.OWNER_NOT_UPDATED, exception);
         }
         return result;
     }
@@ -59,13 +62,10 @@ public class OwnerRepository {
     public boolean delete(int id) {
         var result = true;
         try {
-            crudRepository.run(
-                    "DELETE FROM Owner o WHERE o.id = :fId",
-                    Map.of("fId", id)
-            );
+            crudRepository.run(OwnerQuery.DELETE, Map.of(Key.F_ID, id));
         } catch (Exception exception) {
             result = false;
-            LOG.error("Unable to delete Owner with specified ID", exception);
+            LOG.error(Message.OWNER_NOT_DELETED, exception);
         }
         return result;
     }
@@ -77,9 +77,9 @@ public class OwnerRepository {
     public List<Owner> findAllOrderById() {
         List<Owner> result = Collections.emptyList();
         try {
-            result = crudRepository.query("FROM Owner o ORDER BY o.id ASC", Owner.class);
+            result = crudRepository.query(OwnerQuery.FIND_ALL, Owner.class);
         } catch (Exception exception) {
-            LOG.error("Unable to list Owners", exception);
+            LOG.error(Message.OWNERS_NOT_LISTED, exception);
         }
         return result;
     }
@@ -92,11 +92,11 @@ public class OwnerRepository {
         Optional<Owner> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    "FROM Owner o WHERE o.id = :fId", Owner.class,
-                    Map.of("fId", id)
+                    OwnerQuery.FIND_BY_ID, Owner.class,
+                    Map.of(Key.F_ID, id)
             );
         } catch (Exception exception) {
-            LOG.error("Unable to get Owner with specified ID", exception);
+            LOG.error(Message.OWNER_NOT_FOUND, exception);
         }
         return result;
     }
