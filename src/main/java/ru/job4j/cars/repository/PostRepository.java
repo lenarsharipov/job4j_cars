@@ -10,6 +10,8 @@ import ru.job4j.cars.util.Key;
 import ru.job4j.cars.util.Message;
 import ru.job4j.cars.util.PostQuery;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,6 @@ import java.util.Optional;
 @AllArgsConstructor
 @Repository
 public class PostRepository {
-
     private static final Logger LOG = LoggerFactory.getLogger(PostRepository.class);
 
     private final CrudRepository crudRepository;
@@ -96,6 +97,53 @@ public class PostRepository {
             );
         } catch (Exception exception) {
             LOG.error(Message.POST_NOT_FOUND, exception);
+        }
+        return result;
+    }
+
+    /**
+     * Find list of today's Post.
+     * @return Post list.
+     */
+    public List<Post> findTodayPosts() {
+        List<Post> result = Collections.emptyList();
+        try {
+            result = crudRepository.query(
+                    PostQuery.FIND_BY_TODAY, Post.class,
+                    Map.of(Key.F_CREATED, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS))
+            );
+        } catch (Exception exception) {
+            LOG.error(Message.POST_NOT_FOUND, exception);
+        }
+        return result;
+    }
+
+    /**
+     * List Posts with photos.
+     * @return Post list.
+     */
+    public List<Post> findWithPhoto() {
+        List<Post> result = Collections.emptyList();
+        try {
+            result = crudRepository.query(
+                    PostQuery.FIND_ALL_WITH_PHOTO, Post.class);
+        } catch (Exception exception) {
+            LOG.error(Message.POSTS_NOT_LISTED, exception);
+        }
+        return result;
+    }
+
+    /**
+     * List Posts found by make.
+     * @return Post list.
+     */
+    public List<Post> findByMake(String make) {
+        List<Post> result = Collections.emptyList();
+        try {
+            result = crudRepository.query(
+                    PostQuery.FIND_BY_MAKE, Post.class, Map.of(Key.F_MAKE, make));
+        } catch (Exception exception) {
+            LOG.error(Message.POSTS_NOT_LISTED, exception);
         }
         return result;
     }

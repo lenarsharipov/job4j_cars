@@ -45,4 +45,10 @@ public class Message {
     public static final String USERS_NOT_FOUND_BY_LIKE_LOGIN =
             "Unable to get Users specified by login";
 
+    public static final String FILE_NOT_SAVED = "Unable to save a specified File";
+    public static final String FILE_NOT_UPDATED = "Unable to update a specified File";
+    public static final String FILE_NOT_DELETED = "Unable to delete File with specified ID";
+    public static final String FILES_NOT_LISTED = "Unable to list Files";
+    public static final String FILE_NOT_FOUND_BY_ID = "Unable to get the File specified by ID";
+
 }

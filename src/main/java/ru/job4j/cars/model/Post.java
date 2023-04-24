@@ -26,6 +26,10 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne()
+    @JoinColumn(name = "car_id")
+    private Car car;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "price_history")
     private List<PriceHistory> priceHistories = new ArrayList<>();
@@ -37,5 +41,11 @@ public class Post {
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
     private List<Post> participates = new ArrayList<>();
+
+    private boolean hasPhoto;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "file")
+    private List<File> files = new ArrayList<>();
 
 }

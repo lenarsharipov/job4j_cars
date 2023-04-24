@@ -32,4 +32,8 @@ public class Car {
             @JoinColumn(name = "owner_id", nullable = false, updatable = false)})
     private Set<Owner> owners = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "make_id", foreignKey = @ForeignKey(name = "MAKE_ID_FK"))
+    private Make make;
+
 }
