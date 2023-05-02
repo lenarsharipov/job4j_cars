@@ -32,7 +32,7 @@ public class PriceHistoryRepository {
     public Optional<PriceHistory> create(PriceHistory priceHistory) {
         Optional<PriceHistory> result = Optional.empty();
         try {
-            crudRepository.run(session -> session.persist(priceHistory));
+            crudRepository.run(session -> session.save(priceHistory));
             result = Optional.of(priceHistory);
         } catch (Exception exception) {
             LOG.error(Message.PRICE_HISTORY_NOT_SAVED, exception);
@@ -47,7 +47,7 @@ public class PriceHistoryRepository {
     public boolean update(PriceHistory priceHistory) {
         var result = true;
         try {
-            crudRepository.run(session -> session.merge(priceHistory));
+            crudRepository.run(session -> session.update(priceHistory));
         } catch (Exception exception) {
             result = false;
             LOG.error(Message.PRICE_HISTORY_NOT_UPDATED, exception);
@@ -60,11 +60,10 @@ public class PriceHistoryRepository {
      * @param id ID.
      */
     public boolean delete(int id) {
-        var result = true;
+        var result = false;
         try {
-            crudRepository.run(PriceHistoryQuery.DELETE, Map.of(Key.F_ID, id));
+            result = crudRepository.isExecuted(PriceHistoryQuery.DELETE, Map.of(Key.ID, id));
         } catch (Exception exception) {
-            result = false;
             LOG.error(Message.PRICE_HISTORY_NOT_DELETED, exception);
         }
         return result;
@@ -93,7 +92,7 @@ public class PriceHistoryRepository {
         try {
             result = crudRepository.optional(
                     PriceHistoryQuery.FIND_BY_ID, PriceHistory.class,
-                    Map.of(Key.F_ID, id)
+                    Map.of(Key.ID, id)
             );
         } catch (Exception exception) {
             LOG.error(Message.PRICE_HISTORY_NOT_FOUND, exception);

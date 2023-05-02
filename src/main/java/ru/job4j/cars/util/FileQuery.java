@@ -4,6 +4,8 @@ public class FileQuery {
 
     public static final String FIND_BY_ID = "FROM File f WHERE f.id = :fId";
 
+    public static final String FIND_ALL = "FROM File f ORDER BY f.id ASC";
+
     public static final String DELETE =
             "DELETE FROM File f WHERE f.id = :fId";
 

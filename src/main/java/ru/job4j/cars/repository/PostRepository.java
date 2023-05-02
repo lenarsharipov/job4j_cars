@@ -33,7 +33,7 @@ public class PostRepository {
     public Optional<Post> create(Post post) {
         Optional<Post> result = Optional.empty();
         try {
-            crudRepository.run(session -> session.persist(post));
+            crudRepository.run(session -> session.save(post));
             result = Optional.of(post);
         } catch (Exception exception) {
             LOG.error(Message.POST_NOT_SAVED, exception);
@@ -48,7 +48,7 @@ public class PostRepository {
     public boolean update(Post post) {
         var result = true;
         try {
-            crudRepository.run(session -> session.merge(post));
+            crudRepository.run(session -> session.update(post));
         } catch (Exception exception) {
             result = false;
             LOG.error(Message.POST_NOT_UPDATED, exception);
@@ -61,11 +61,10 @@ public class PostRepository {
      * @param id ID.
      */
     public boolean delete(int id) {
-        var result = true;
+        var result = false;
         try {
-            crudRepository.run(PostQuery.DELETE, Map.of(Key.F_ID, id));
+            result = crudRepository.isExecuted(PostQuery.DELETE, Map.of(Key.ID, id));
         } catch (Exception exception) {
-            result = false;
             LOG.error(Message.POST_NOT_DELETED, exception);
         }
         return result;
@@ -93,7 +92,7 @@ public class PostRepository {
         Optional<Post> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    PostQuery.FIND_BY_ID, Post.class, Map.of(Key.F_ID, id)
+                    PostQuery.FIND_BY_ID, Post.class, Map.of(Key.ID, id)
             );
         } catch (Exception exception) {
             LOG.error(Message.POST_NOT_FOUND, exception);
@@ -110,7 +109,7 @@ public class PostRepository {
         try {
             result = crudRepository.query(
                     PostQuery.FIND_BY_TODAY, Post.class,
-                    Map.of(Key.F_CREATED, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS))
+                    Map.of(Key.CREATED, LocalDateTime.now().truncatedTo(ChronoUnit.DAYS))
             );
         } catch (Exception exception) {
             LOG.error(Message.POST_NOT_FOUND, exception);
@@ -141,7 +140,7 @@ public class PostRepository {
         List<Post> result = Collections.emptyList();
         try {
             result = crudRepository.query(
-                    PostQuery.FIND_BY_MAKE, Post.class, Map.of(Key.F_MAKE, make));
+                    PostQuery.FIND_BY_MAKE, Post.class, Map.of(Key.MAKE, make));
         } catch (Exception exception) {
             LOG.error(Message.POSTS_NOT_LISTED, exception);
         }

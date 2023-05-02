@@ -3,8 +3,6 @@ package ru.job4j.cars.model;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "auto_user")
@@ -17,8 +15,4 @@ public class User {
     private String login;
 
     private String password;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "post")
-    private List<Post> posts = new ArrayList<>();
 }

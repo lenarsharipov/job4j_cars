@@ -32,25 +32,10 @@ public class OwnerRepository {
     public Optional<Owner> create(Owner owner) {
         Optional<Owner> result = Optional.empty();
         try {
-            crudRepository.run(session -> session.persist(owner));
+            crudRepository.run(session -> session.save(owner));
             result = Optional.of(owner);
         } catch (Exception exception) {
             LOG.error(Message.OWNER_NOT_SAVED, exception);
-        }
-        return result;
-    }
-
-    /**
-     * Update Owner in DB.
-     * @param owner Owner.
-     */
-    public boolean update(Owner owner) {
-        var result = true;
-        try {
-            crudRepository.run(session -> session.merge(owner));
-        } catch (Exception exception) {
-            result = false;
-            LOG.error(Message.OWNER_NOT_UPDATED, exception);
         }
         return result;
     }
@@ -62,9 +47,8 @@ public class OwnerRepository {
     public boolean delete(int id) {
         var result = true;
         try {
-            crudRepository.run(OwnerQuery.DELETE, Map.of(Key.F_ID, id));
+            result = crudRepository.isExecuted(OwnerQuery.DELETE, Map.of(Key.ID, id));
         } catch (Exception exception) {
-            result = false;
             LOG.error(Message.OWNER_NOT_DELETED, exception);
         }
         return result;
@@ -80,23 +64,6 @@ public class OwnerRepository {
             result = crudRepository.query(OwnerQuery.FIND_ALL, Owner.class);
         } catch (Exception exception) {
             LOG.error(Message.OWNERS_NOT_LISTED, exception);
-        }
-        return result;
-    }
-
-    /**
-     * Find Owner by specified ID.
-     * @return Owner.
-     */
-    public Optional<Owner> findById(int id) {
-        Optional<Owner> result = Optional.empty();
-        try {
-            result = crudRepository.optional(
-                    OwnerQuery.FIND_BY_ID, Owner.class,
-                    Map.of(Key.F_ID, id)
-            );
-        } catch (Exception exception) {
-            LOG.error(Message.OWNER_NOT_FOUND, exception);
         }
         return result;
     }

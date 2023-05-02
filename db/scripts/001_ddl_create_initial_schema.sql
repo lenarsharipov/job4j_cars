@@ -8,5 +8,5 @@ CREATE TABLE post (
     id              SERIAL                      PRIMARY KEY,
     description     VARCHAR                     NOT NULL,
     created         TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-    user_id         INT                         REFERENCES auto_user (id) NOT NULL
+    user_id         INT                         REFERENCES auto_user(id) NOT NULL
 );

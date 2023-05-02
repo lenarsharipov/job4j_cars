@@ -32,7 +32,7 @@ public class UserRepository {
     public Optional<User> create(User user) {
         Optional<User> result = Optional.empty();
         try {
-            crudRepository.run(session -> session.persist(user));
+            crudRepository.run(session -> session.save(user));
             result = Optional.of(user);
         } catch (Exception exception) {
             LOG.error(Message.USER_NOT_SAVED, exception);
@@ -47,7 +47,7 @@ public class UserRepository {
     public boolean update(User user) {
         var result = true;
         try {
-            crudRepository.run(session -> session.merge(user));
+            crudRepository.run(session -> session.update(user));
         } catch (Exception exception) {
             result = false;
             LOG.error(Message.USER_NOT_UPDATED, exception);
@@ -57,14 +57,13 @@ public class UserRepository {
 
     /**
      * Delete User by ID.
-     * @param id ID.
+     * @param login Login.
      */
-    public boolean delete(int id) {
-        var result = true;
+    public boolean delete(String login) {
+        var result = false;
         try {
-            crudRepository.run(UserQuery.DELETE, Map.of(Key.F_ID, id));
+            result = crudRepository.isExecuted(UserQuery.DELETE, Map.of(Key.LOGIN, login));
         } catch (Exception exception) {
-            result = false;
             LOG.error(Message.USER_NOT_DELETED, exception);
         }
         return result;
@@ -92,7 +91,7 @@ public class UserRepository {
         Optional<User> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    UserQuery.FIND_BY_ID, User.class, Map.of(Key.F_ID, id));
+                    UserQuery.FIND_BY_ID, User.class, Map.of(Key.ID, id));
         } catch (Exception exception) {
             LOG.error(Message.USER_NOT_FOUND_BY_ID, exception);
         }
@@ -109,7 +108,7 @@ public class UserRepository {
         try {
             result = crudRepository.query(
                     UserQuery.FIND_BY_LIKE_LOGIN, User.class,
-                    Map.of(Key.F_KEY, "%" + key + "%")
+                    Map.of(Key.KEY, "%" + key + "%")
             );
         } catch (Exception exception) {
             LOG.error(Message.USERS_NOT_FOUND_BY_LIKE_LOGIN, exception);
@@ -127,7 +126,7 @@ public class UserRepository {
         try {
             result = crudRepository.optional(
                     UserQuery.FIND_BY_LOGIN, User.class,
-                    Map.of(Key.F_LOGIN, login)
+                    Map.of(Key.LOGIN, login)
             );
         } catch (Exception exception) {
             LOG.error(Message.USER_NOT_FOUND_BY_LOGIN, exception);

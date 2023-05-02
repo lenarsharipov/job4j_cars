@@ -1,3 +1,4 @@
 CREATE TABLE engine (
-    id SERIAL PRIMARY KEY
+    id   SERIAL  PRIMARY KEY,
+    name VARCHAR NOT NULL UNIQUE
 );

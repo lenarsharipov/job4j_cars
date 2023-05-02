@@ -1,15 +1,19 @@
 package ru.job4j.cars.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Post {
@@ -22,30 +26,28 @@ public class Post {
 
     private LocalDateTime created = LocalDateTime.now();
 
-    @ManyToOne()
-    @JoinColumn(name = "user_id")
+    @OneToOne()
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "USER_ID_FK"))
     private User user;
 
-    @ManyToOne()
-    @JoinColumn(name = "car_id")
+    @OneToOne()
+    @JoinColumn(name = "car_id", foreignKey = @ForeignKey(name = "CAR_ID_FK"))
     private Car car;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "price_history")
-    private List<PriceHistory> priceHistories = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "post_id")
+    private Set<PriceHistory> priceHistories = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
-            name = "participate",
+            name = "participates",
             joinColumns = {@JoinColumn(name = "post_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
-    private List<Post> participates = new ArrayList<>();
+    private Set<Post> participates = new HashSet<>();
 
-    private boolean hasPhoto;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "file")
-    private List<File> files = new ArrayList<>();
+    @OneToOne
+    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "FILE_ID_FK"))
+    private File file;
 
 }

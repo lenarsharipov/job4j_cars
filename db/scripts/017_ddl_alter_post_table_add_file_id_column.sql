@@ -1,0 +1,1 @@
+ALTER TABLE post ADD COLUMN file_id INT REFERENCES file(id) NOT NULL;

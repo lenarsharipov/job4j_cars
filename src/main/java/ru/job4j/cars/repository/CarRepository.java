@@ -32,7 +32,7 @@ public class CarRepository {
     public Optional<Car> create(Car car) {
         Optional<Car> result = Optional.empty();
         try {
-            crudRepository.run(session -> session.persist(car));
+            crudRepository.run(session -> session.save(car));
             result = Optional.of(car);
         } catch (Exception exception) {
             LOG.error(Message.CAR_NOT_SAVED, exception);
@@ -47,7 +47,7 @@ public class CarRepository {
     public boolean update(Car car) {
         var result = true;
         try {
-            crudRepository.run(session -> session.merge(car));
+            crudRepository.run(session -> session.update(car));
         } catch (Exception exception) {
             result = false;
             LOG.error(Message.CAR_NOT_UPDATED, exception);
@@ -60,11 +60,10 @@ public class CarRepository {
      * @param id ID.
      */
     public boolean delete(int id) {
-        var result = true;
+        var result = false;
         try {
-            crudRepository.run(CarQuery.DELETE, Map.of(Key.F_ID, id));
+            result = crudRepository.isExecuted(CarQuery.DELETE, Map.of(Key.ID, id));
         } catch (Exception exception) {
-            result = false;
             LOG.error(Message.CAR_NOT_DELETED, exception);
         }
         return result;
@@ -92,7 +91,7 @@ public class CarRepository {
         Optional<Car> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    CarQuery.FIND_BY_ID, Car.class, Map.of(Key.F_ID, id)
+                    CarQuery.FIND_BY_ID, Car.class, Map.of(Key.ID, id)
             );
         } catch (Exception exception) {
             LOG.error(Message.CAR_NOT_FOUND, exception);

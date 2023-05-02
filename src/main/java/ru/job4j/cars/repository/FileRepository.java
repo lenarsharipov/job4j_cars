@@ -10,6 +10,8 @@ import ru.job4j.cars.util.FileQuery;
 import ru.job4j.cars.util.Key;
 import ru.job4j.cars.util.Message;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,10 +31,25 @@ public class FileRepository {
     public Optional<File> save(File file) {
         Optional<File> result = Optional.empty();
         try {
-            crudRepository.run(session -> session.persist(file));
+            crudRepository.run(session -> session.save(file));
             result = Optional.of(file);
         } catch (Exception exception) {
             LOG.error(Message.FILE_NOT_SAVED, exception);
+        }
+        return result;
+    }
+
+    /**
+     * List persisted Files.
+     * @return List of Files.
+     */
+    public List<File> findAll() {
+        List<File> result = Collections.emptyList();
+        try {
+            result = crudRepository.query(
+                    FileQuery.FIND_ALL, File.class);
+        } catch (Exception exception) {
+            LOG.error(Message.FILES_NOT_LISTED, exception);
         }
         return result;
     }
@@ -46,7 +63,7 @@ public class FileRepository {
         Optional<File> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    FileQuery.FIND_BY_ID, File.class, Map.of(Key.F_ID, id));
+                    FileQuery.FIND_BY_ID, File.class, Map.of(Key.ID, id));
         } catch (Exception exception) {
             LOG.error(Message.FILE_NOT_FOUND_BY_ID, exception);
         }
@@ -60,9 +77,8 @@ public class FileRepository {
     public boolean deleteById(int id) {
         var result = true;
         try {
-            crudRepository.run(FileQuery.DELETE, Map.of(Key.F_ID, id));
+            result = crudRepository.isExecuted(FileQuery.DELETE, Map.of(Key.ID, id));
         } catch (Exception exception) {
-            result = false;
             LOG.error(Message.FILE_NOT_DELETED, exception);
         }
         return result;

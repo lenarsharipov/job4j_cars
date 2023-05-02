@@ -51,4 +51,6 @@ public class Message {
     public static final String FILES_NOT_LISTED = "Unable to list Files";
     public static final String FILE_NOT_FOUND_BY_ID = "Unable to get the File specified by ID";
 
+    public static final String MAKES_NOT_LISTED = "Unable to list Makes";
+
 }
