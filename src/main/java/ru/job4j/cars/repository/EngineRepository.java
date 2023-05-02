@@ -41,21 +41,6 @@ public class EngineRepository {
     }
 
     /**
-     * Update Engine in DB.
-     * @param engine Engine.
-     */
-    public boolean update(Engine engine) {
-        var result = true;
-        try {
-            crudRepository.run(session -> session.update(engine));
-        } catch (Exception exception) {
-            result = false;
-            LOG.error(Message.ENGINE_NOT_UPDATED, exception);
-        }
-        return result;
-    }
-
-    /**
      * Delete Engine by ID.
      * @param id ID.
      */
