@@ -24,50 +24,50 @@ public class EngineRepository {
 
     private final CrudRepository crudRepository;
 
-//    /**
-//     * Save Engine in DB.
-//     * @param engine Engine.
-//     * @return Engine with specified ID.
-//     */
-//    public Optional<Engine> create(Engine engine) {
-//        Optional<Engine> result = Optional.empty();
-//        try {
-//            crudRepository.run(session -> session.save(engine));
-//            result = Optional.of(engine);
-//        } catch (Exception exception) {
-//            LOG.error(Message.ENGINE_NOT_SAVED, exception);
-//        }
-//        return result;
-//    }
-//
-//    /**
-//     * Update Engine in DB.
-//     * @param engine Engine.
-//     */
-//    public boolean update(Engine engine) {
-//        var result = true;
-//        try {
-//            crudRepository.run(session -> session.update(engine));
-//        } catch (Exception exception) {
-//            result = false;
-//            LOG.error(Message.ENGINE_NOT_UPDATED, exception);
-//        }
-//        return result;
-//    }
-//
-//    /**
-//     * Delete Engine by ID.
-//     * @param id ID.
-//     */
-//    public boolean delete(int id) {
-//        var result = false;
-//        try {
-//            result = crudRepository.isExecuted(EngineQuery.DELETE, Map.of(Key.F_ID, id));
-//        } catch (Exception exception) {
-//            LOG.error(Message.ENGINE_NOT_DELETED, exception);
-//        }
-//        return result;
-//    }
+    /**
+     * Save Engine in DB.
+     * @param engine Engine.
+     * @return Engine with specified ID.
+     */
+    public Optional<Engine> create(Engine engine) {
+        Optional<Engine> result = Optional.empty();
+        try {
+            crudRepository.run(session -> session.save(engine));
+            result = Optional.of(engine);
+        } catch (Exception exception) {
+            LOG.error(Message.ENGINE_NOT_SAVED, exception);
+        }
+        return result;
+    }
+
+    /**
+     * Update Engine in DB.
+     * @param engine Engine.
+     */
+    public boolean update(Engine engine) {
+        var result = true;
+        try {
+            crudRepository.run(session -> session.update(engine));
+        } catch (Exception exception) {
+            result = false;
+            LOG.error(Message.ENGINE_NOT_UPDATED, exception);
+        }
+        return result;
+    }
+
+    /**
+     * Delete Engine by ID.
+     * @param id ID.
+     */
+    public boolean delete(int id) {
+        var result = false;
+        try {
+            result = crudRepository.isExecuted(EngineQuery.DELETE, Map.of(Key.ID, id));
+        } catch (Exception exception) {
+            LOG.error(Message.ENGINE_NOT_DELETED, exception);
+        }
+        return result;
+    }
 
     /**
      * List existed Engines ordered by ID ASC.
