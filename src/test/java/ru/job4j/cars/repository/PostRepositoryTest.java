@@ -6,7 +6,6 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cars.model.Car;
 import ru.job4j.cars.model.Owner;
@@ -19,7 +18,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 class PostRepositoryTest implements AutoCloseable {
     private static final StandardServiceRegistry REGISTRY = new StandardServiceRegistryBuilder()
             .configure()
