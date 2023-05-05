@@ -23,11 +23,11 @@ public class Car {
 
     private String name;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "engine_id", foreignKey = @ForeignKey(name = "ENGINE_ID_FK"))
     private Engine engine;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "OWNER_ID_FK"))
     private Owner owner;
 
@@ -38,7 +38,7 @@ public class Car {
             @JoinColumn(name = "owner_id", nullable = false, updatable = false)})
     private Set<Owner> owners = new HashSet<>();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "make_id", foreignKey = @ForeignKey(name = "MAKE_ID_FK"))
     private Make make;
 

@@ -4,9 +4,11 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cars.model.Owner;
+import ru.job4j.cars.util.TestQuery;
 
 import java.util.List;
 
@@ -22,12 +24,13 @@ class OwnerRepositoryTest implements AutoCloseable {
     private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SESSION_FACTORY);
     private static final OwnerRepository OWNER_REPOSITORY = new OwnerRepository(CRUD_REPOSITORY);
 
+    @AfterEach
     @BeforeEach
-    void clear() {
-        var owners = OWNER_REPOSITORY.findAllOrderById();
-        for (var owner : owners) {
-            OWNER_REPOSITORY.delete(owner.getId());
-        }
+    void clearTable() {
+        CRUD_REPOSITORY.run(
+                session -> session
+                        .createSQLQuery(TestQuery.DELETE_OWNERS)
+                        .executeUpdate());
     }
 
     /**

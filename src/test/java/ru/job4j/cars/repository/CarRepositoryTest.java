@@ -5,14 +5,15 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.*;
-import ru.job4j.cars.model.*;
+import ru.job4j.cars.model.Car;
+import ru.job4j.cars.model.Owner;
+import ru.job4j.cars.util.TestQuery;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CarRepositoryTest implements AutoCloseable {
     private static final StandardServiceRegistry REGISTRY = new StandardServiceRegistryBuilder()
@@ -26,39 +27,29 @@ class CarRepositoryTest implements AutoCloseable {
     private static final EngineRepository ENGINE_REPOSITORY = new EngineRepository(CRUD_REPOSITORY);
     private static final OwnerRepository OWNER_REPOSITORY = new OwnerRepository(CRUD_REPOSITORY);
     private static final MakeRepository MAKE_REPOSITORY = new MakeRepository(CRUD_REPOSITORY);
-    private static Set<Owner> owners = new HashSet<>();
-    private static Owner current;
+    private static final Owner CURRENT = new Owner();
 
     @BeforeAll
-    static void init() {
-        owners = new HashSet<>();
-        current = new Owner();
-        current.setName("current owner's name");
-        OWNER_REPOSITORY.create(current);
-        var first = new Owner();
-        first.setName("first owner's name");
-        OWNER_REPOSITORY.create(first);
-        var second = new Owner();
-        second.setName("second owner's name");
-        OWNER_REPOSITORY.create(second);
-        owners.add(first);
-        owners.add(second);
+    static void initOwner() {
+        CURRENT.setName("current owner");
+        OWNER_REPOSITORY.create(CURRENT);
     }
 
     @AfterAll
-    static void clearOwnerRepo() {
-        var owners = OWNER_REPOSITORY.findAllOrderById();
-        for (var owner : owners) {
-            OWNER_REPOSITORY.delete(owner.getId());
-        }
+    static void deleteOwners() {
+        CRUD_REPOSITORY.run(
+                session -> session
+                        .createSQLQuery(TestQuery.DELETE_OWNERS)
+                        .executeUpdate());
     }
 
+    @BeforeEach
     @AfterEach
-    void clear() {
-        var cars = CAR_REPOSITORY.findAllOrderById();
-        for (var car : cars) {
-            CAR_REPOSITORY.delete(car.getId());
-        }
+    void clearTable() {
+        CRUD_REPOSITORY.run(
+                session -> session
+                        .createSQLQuery(TestQuery.DELETE_CAR)
+                        .executeUpdate());
     }
 
     /**
@@ -71,8 +62,8 @@ class CarRepositoryTest implements AutoCloseable {
         var car = new Car();
         car.setName("Test car");
         car.setEngine(engines.get(0));
-        car.setOwner(current);
-        car.setOwners(owners);
+        car.setOwner(CURRENT);
+        car.setOwners(new HashSet<>());
         car.setMake(volvo);
         return car;
     }
@@ -103,10 +94,7 @@ class CarRepositoryTest implements AutoCloseable {
         var id = car.getId();
         var result = CAR_REPOSITORY.findById(id);
         assertThat(result).isNotEmpty();
-        assertThat(result.get())
-                .isEqualTo(
-                new Car(id, "Test car", car.getEngine(), current, owners, car.getMake()))
-                .usingRecursiveComparison();
+        assertThat(result.get()).isEqualTo(car).usingRecursiveComparison();
     }
 
     /**

@@ -4,14 +4,12 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import ru.job4j.cars.model.Car;
 import ru.job4j.cars.model.Owner;
 import ru.job4j.cars.model.Post;
 import ru.job4j.cars.model.PriceHistory;
+import ru.job4j.cars.util.TestQuery;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,25 +36,17 @@ class PostRepositoryTest implements AutoCloseable {
     private static Car car;
 
     @BeforeAll
-    static void init() {
+    static void initCar() {
         var gasoline = ENGINE_REPOSITORY.findAllOrderById().get(0);
         var volvo = MAKE_REPOSITORY.findAll().get(0);
         var current = new Owner();
         current.setName("current owner");
         OWNER_REPOSITORY.create(current);
-        var first = new Owner();
-        first.setName("first owner");
-        OWNER_REPOSITORY.create(first);
-        var second = new Owner();
-        second.setName("second owner");
-        OWNER_REPOSITORY.create(second);
-        var owners = new HashSet<>(List.of(first, second, current));
-
         car = new Car();
         car.setName("Test car");
         car.setEngine(gasoline);
         car.setOwner(current);
-        car.setOwners(owners);
+        car.setOwners(new HashSet<>());
         car.setMake(volvo);
         CAR_REPOSITORY.create(car);
     }
@@ -77,25 +67,20 @@ class PostRepositoryTest implements AutoCloseable {
     }
 
     @BeforeEach
+    @AfterEach
     void clearPostRepo() {
-        var posts = POST_REPOSITORY.findAllOrderById();
-        for (var post : posts) {
-            POST_REPOSITORY.delete(post.getId());
-        }
+        CRUD_REPOSITORY.run(session ->
+                session.createSQLQuery(TestQuery.DELETE_POST).executeUpdate()
+        );
     }
 
     @AfterAll
     static void clear() {
-        var owners = OWNER_REPOSITORY.findAllOrderById();
-        for (var owner : owners) {
-            OWNER_REPOSITORY.delete(owner.getId());
-        }
-
-        var cars = CAR_REPOSITORY.findAllOrderById();
-        for (var car : cars) {
-            CAR_REPOSITORY.delete(car.getId());
-        }
-
+        CRUD_REPOSITORY.run(session -> {
+                session.createSQLQuery(TestQuery.DELETE_CAR).executeUpdate();
+                session.createSQLQuery(TestQuery.DELETE_OWNERS).executeUpdate();
+            }
+        );
     }
 
     @Test

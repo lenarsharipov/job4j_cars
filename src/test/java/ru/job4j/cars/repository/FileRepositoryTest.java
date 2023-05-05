@@ -4,9 +4,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cars.model.File;
+import ru.job4j.cars.util.TestQuery;
 
 import java.util.List;
 
@@ -21,14 +22,20 @@ class FileRepositoryTest implements AutoCloseable {
             .buildSessionFactory();
     private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SESSION_FACTORY);
     private static final FileRepository FILE_REPOSITORY = new FileRepository(CRUD_REPOSITORY);
-    private static final File DEFAULT_POSTER = FILE_REPOSITORY.findAll().get(0);
 
-    @AfterEach
-    void clear() {
-        var files = FILE_REPOSITORY.findAll().stream().skip(1).toList();
-        for (var file : files) {
-            FILE_REPOSITORY.deleteById(file.getId());
-        }
+    @BeforeEach
+    void clearTable() {
+        CRUD_REPOSITORY.run(
+                session -> session
+                        .createSQLQuery(TestQuery.DELETE_FILE)
+                        .executeUpdate());
+    }
+
+    private File createFile() {
+        var file = new File();
+        file.setName("name");
+        file.setPath("path");
+        return file;
     }
 
     /**
@@ -36,12 +43,11 @@ class FileRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenCreateFileThenGetNotEmptyOptional() {
-        File file = new File();
-        file.setName("name");
-        file.setPath("path");
+        assertThat(FILE_REPOSITORY.findAll()).isEmpty();
+        var file = createFile();
         var result = FILE_REPOSITORY.save(file);
         assertThat(result).isNotEmpty();
-        assertThat(FILE_REPOSITORY.findAll()).isEqualTo(List.of(DEFAULT_POSTER, result.get()));
+        assertThat(FILE_REPOSITORY.findAll()).isEqualTo(List.of(result.get()));
     }
 
     /**
@@ -49,16 +55,15 @@ class FileRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenSavedNotUniqueFileThenGetEmptyOptional() {
-        File file = new File();
-        file.setName("name");
-        file.setPath("path");
+        assertThat(FILE_REPOSITORY.findAll()).isEmpty();
+        var file = createFile();
         FILE_REPOSITORY.save(file);
-        File file2 = new File();
+        var file2 = createFile();
         file2.setName("name2");
         file2.setPath("path");
         var result = FILE_REPOSITORY.save(file2);
         assertThat(result).isEmpty();
-        assertThat(FILE_REPOSITORY.findAll()).isEqualTo(List.of(DEFAULT_POSTER, file));
+        assertThat(FILE_REPOSITORY.findAll()).isEqualTo(List.of(file));
     }
 
     /**
@@ -66,12 +71,10 @@ class FileRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenFindAllThenGetPersistedFilesList() {
-        assertThat(FILE_REPOSITORY.findAll()).isEqualTo(List.of(DEFAULT_POSTER));
-        File file = new File();
-        file.setName("name");
-        file.setPath("path");
+        assertThat(FILE_REPOSITORY.findAll()).isEmpty();
+        var file = createFile();
         FILE_REPOSITORY.save(file);
-        assertThat(FILE_REPOSITORY.findAll()).isEqualTo(List.of(DEFAULT_POSTER, file));
+        assertThat(FILE_REPOSITORY.findAll()).isEqualTo(List.of(file));
     }
 
     /**
@@ -79,9 +82,11 @@ class FileRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenGetByIdThenGetOptionalOfFile() {
-        var result = FILE_REPOSITORY.findById(1);
+        var file = createFile();
+        FILE_REPOSITORY.save(file);
+        var result = FILE_REPOSITORY.findById(file.getId());
         assertThat(result).isNotEmpty();
-        assertThat(result.get()).isEqualTo(DEFAULT_POSTER).usingRecursiveComparison();
+        assertThat(result.get()).isEqualTo(file).usingRecursiveComparison();
     }
 
     /**
@@ -89,6 +94,7 @@ class FileRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenGetByIdThenGetEmptyOptional() {
+        assertThat(FILE_REPOSITORY.findAll()).isEmpty();
         var result = FILE_REPOSITORY.findById(-1);
         assertThat(result).isEmpty();
     }
@@ -98,14 +104,11 @@ class FileRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenDeleteThenGetTrueAndFileDeleted() {
-        File file = new File();
-        file.setName("name");
-        file.setPath("path");
+        assertThat(FILE_REPOSITORY.findAll()).isEmpty();
+        var file = createFile();
         FILE_REPOSITORY.save(file);
         assertThat(FILE_REPOSITORY.deleteById(file.getId())).isTrue();
-        assertThat(FILE_REPOSITORY.findAll())
-                .doesNotContain(file)
-                .containsOnly(DEFAULT_POSTER);
+        assertThat(FILE_REPOSITORY.findAll()).isEmpty();
     }
 
     /**
@@ -114,8 +117,7 @@ class FileRepositoryTest implements AutoCloseable {
     @Test
     void whenNotDeletedThenGetFalse() {
         assertThat(FILE_REPOSITORY.deleteById(-1)).isFalse();
-        assertThat(FILE_REPOSITORY.findAll())
-                .containsOnly(DEFAULT_POSTER);
+        assertThat(FILE_REPOSITORY.findAll()).isEmpty();
     }
 
     @Override
