@@ -34,7 +34,8 @@ class EngineRepositoryTest implements AutoCloseable {
         var electric = new Engine(4, "Electric");
         assertThat(ENGINE_REPOSITORY.findAllOrderById())
                 .isNotEqualTo(List.of(gasoline, diesel, lpg, electric))
-                .usingRecursiveComparison();    }
+                .usingRecursiveComparison();
+    }
 
     /**
      * Get optional of engine by ID.

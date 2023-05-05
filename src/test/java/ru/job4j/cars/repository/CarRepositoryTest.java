@@ -4,9 +4,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import ru.job4j.cars.model.*;
 
 import java.util.HashSet;
@@ -28,23 +26,31 @@ class CarRepositoryTest implements AutoCloseable {
     private static final EngineRepository ENGINE_REPOSITORY = new EngineRepository(CRUD_REPOSITORY);
     private static final OwnerRepository OWNER_REPOSITORY = new OwnerRepository(CRUD_REPOSITORY);
     private static final MakeRepository MAKE_REPOSITORY = new MakeRepository(CRUD_REPOSITORY);
-    private static Set<Owner> owners;
-    private static Owner owner;
+    private static Set<Owner> owners = new HashSet<>();
+    private static Owner current;
 
     @BeforeAll
     static void init() {
         owners = new HashSet<>();
-        owner = new Owner();
-        owner.setName("current owner's name");
-        OWNER_REPOSITORY.create(owner);
-        var firstOwner = new Owner();
-        firstOwner.setName("first owner's name");
-        OWNER_REPOSITORY.create(firstOwner);
-        var secondOwner = new Owner();
-        secondOwner.setName("second owner's name");
-        OWNER_REPOSITORY.create(secondOwner);
-        owners.add(firstOwner);
-        owners.add(secondOwner);
+        current = new Owner();
+        current.setName("current owner's name");
+        OWNER_REPOSITORY.create(current);
+        var first = new Owner();
+        first.setName("first owner's name");
+        OWNER_REPOSITORY.create(first);
+        var second = new Owner();
+        second.setName("second owner's name");
+        OWNER_REPOSITORY.create(second);
+        owners.add(first);
+        owners.add(second);
+    }
+
+    @AfterAll
+    static void clearOwnerRepo() {
+        var owners = OWNER_REPOSITORY.findAllOrderById();
+        for (var owner : owners) {
+            OWNER_REPOSITORY.delete(owner.getId());
+        }
     }
 
     @AfterEach
@@ -56,22 +62,28 @@ class CarRepositoryTest implements AutoCloseable {
     }
 
     /**
-     * Save car and get optional of car. New car saved.
+     * Create test car.
+     * @return Car.
      */
-    @Test
-    void whenSaveCarThenGetOptionalOfSavedCar() {
-        assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
-
+    private Car createCar() {
         var engines = ENGINE_REPOSITORY.findAllOrderById();
         var volvo = MAKE_REPOSITORY.findAll().get(0);
         var car = new Car();
         car.setName("Test car");
         car.setEngine(engines.get(0));
-        car.setOwner(owner);
+        car.setOwner(current);
         car.setOwners(owners);
         car.setMake(volvo);
-        System.out.println(owner);
+        return car;
+    }
 
+    /**
+     * Save car and get optional of car. New car saved.
+     */
+    @Test
+    void whenSaveCarThenGetOptionalOfSavedCar() {
+        assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
+        var car = createCar();
         var result = CAR_REPOSITORY.create(car);
         assertThat(result).isNotEmpty();
         assertThat(result.get()).isEqualTo(car).usingRecursiveComparison();
@@ -83,23 +95,17 @@ class CarRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenUpdateSavedCarThenGetTrueAndCarUpdated() {
-        var engines = ENGINE_REPOSITORY.findAllOrderById();
-        var makes = MAKE_REPOSITORY.findAll();
-        var car = new Car();
-        car.setName("Test car");
-        car.setEngine(engines.get(0));
-        car.setOwner(owner);
-        car.setOwners(owners);
-        car.setMake(makes.get(0));
-
+        var car = createCar();
         CAR_REPOSITORY.create(car);
 
-        car.setEngine(engines.get(1));
-        car.setMake(makes.get(1));
+        car.setName("UPDATED name");
         assertThat(CAR_REPOSITORY.update(car)).isTrue();
         var id = car.getId();
-        assertThat(CAR_REPOSITORY.findAllOrderById().get(0))
-                .isEqualTo(new Car(id, "Test car", engines.get(1), owner, owners, makes.get(1)))
+        var result = CAR_REPOSITORY.findById(id);
+        assertThat(result).isNotEmpty();
+        assertThat(result.get())
+                .isEqualTo(
+                new Car(id, "Test car", car.getEngine(), current, owners, car.getMake()))
                 .usingRecursiveComparison();
     }
 
@@ -108,14 +114,7 @@ class CarRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenUpdateNotSavedCarThenGetFalse() {
-        var engines = ENGINE_REPOSITORY.findAllOrderById();
-        var makes = MAKE_REPOSITORY.findAll();
-        var car = new Car();
-        car.setName("Test car");
-        car.setEngine(engines.get(0));
-        car.setOwner(owner);
-        car.setOwners(owners);
-        car.setMake(makes.get(0));
+        var car = createCar();
 
         assertThat(CAR_REPOSITORY.update(car)).isFalse();
         assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
@@ -127,19 +126,12 @@ class CarRepositoryTest implements AutoCloseable {
     @Test
     void whenFindByIdThenGetOptionalOfCar() {
         assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
-
-        var engines = ENGINE_REPOSITORY.findAllOrderById();
-        var makes = MAKE_REPOSITORY.findAll();
-        var car = new Car();
-        car.setName("Test car");
-        car.setEngine(engines.get(0));
-        car.setOwner(owner);
-        car.setOwners(owners);
-        car.setMake(makes.get(0));
+        var car = createCar();
         CAR_REPOSITORY.create(car);
 
         assertThat(CAR_REPOSITORY.findById(car.getId()))
                 .isEqualTo(Optional.of(car)).usingRecursiveComparison();
+        assertThat(CAR_REPOSITORY.findAllOrderById()).isEqualTo(List.of(car));
     }
 
     /**
@@ -147,6 +139,7 @@ class CarRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenCarNotFoundByIdThenGetEmptyOptional() {
+        assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
         assertThat(CAR_REPOSITORY.findById(-1)).isEmpty();
     }
 

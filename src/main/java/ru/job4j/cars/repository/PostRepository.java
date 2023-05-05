@@ -140,7 +140,7 @@ public class PostRepository {
         List<Post> result = Collections.emptyList();
         try {
             result = crudRepository.query(
-                    PostQuery.FIND_BY_MAKE, Post.class, Map.of(Key.MAKE, make));
+                    PostQuery.FIND_BY_MAKE, Post.class, Map.of(Key.MAKE_NAME, make));
         } catch (Exception exception) {
             LOG.error(Message.POSTS_NOT_LISTED, exception);
         }

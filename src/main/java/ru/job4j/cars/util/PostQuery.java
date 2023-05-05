@@ -8,16 +8,12 @@ public class PostQuery {
     public static final String FIND_ALL = """
             SELECT DISTINCT p
             FROM Post p
-            LEFT JOIN FETCH p.priceHistories
-            LEFT JOIN FETCH p.participates
             ORDER BY p.id ASC
             """;
 
     public static final String FIND_BY_ID = """
             SELECT DISTINCT p
             FROM Post p
-            LEFT JOIN FETCH p.priceHistories
-            LEFT JOIN FETCH p.participates
             WHERE p.id = :fId
             ORDER BY p.id ASC
             """;
@@ -32,14 +28,16 @@ public class PostQuery {
     public static final String FIND_ALL_WITH_PHOTO = """
             SELECT DISTINCT p
             FROM Post p
-            WHERE p.hasPhoto = TRUE
+            LEFT JOIN FETCH p.file
+            WHERE p.file IS NOT NULL
             ORDER BY p.id ASC
             """;
 
     public static final String FIND_BY_MAKE = """
             SELECT DISTINCT p
             FROM Post p
-            WHERE p.car.make = :fMake
+            LEFT JOIN FETCH p.car
+            WHERE p.car.make.name = :fName
             ORDER BY p.id ASC
             """;
 }

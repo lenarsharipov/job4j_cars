@@ -5,6 +5,6 @@ public class Key {
     public static final String KEY = "fKey";
     public static final String LOGIN = "fLogin";
     public static final String CREATED = "fCreated";
-    public static final String MAKE = "fMake";
+    public static final String MAKE_NAME = "fName";
 
 }

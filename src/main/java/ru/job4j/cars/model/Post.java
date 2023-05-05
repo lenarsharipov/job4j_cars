@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "post")
@@ -26,17 +26,17 @@ public class Post {
 
     private LocalDateTime created = LocalDateTime.now();
 
-    @OneToOne()
+    @ManyToOne()
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "USER_ID_FK"))
     private User user;
 
-    @OneToOne()
+    @ManyToOne
     @JoinColumn(name = "car_id", foreignKey = @ForeignKey(name = "CAR_ID_FK"))
     private Car car;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "post_id")
-    private Set<PriceHistory> priceHistories = new HashSet<>();
+    private List<PriceHistory> priceHistories = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -44,9 +44,9 @@ public class Post {
             joinColumns = {@JoinColumn(name = "post_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
-    private Set<Post> participates = new HashSet<>();
+    private List<Post> participates = new ArrayList<>();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "FILE_ID_FK"))
     private File file;
 

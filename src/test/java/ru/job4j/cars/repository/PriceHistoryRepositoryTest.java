@@ -4,7 +4,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cars.model.PriceHistory;
 
@@ -24,7 +24,7 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
     private static final PriceHistoryRepository PRICE_HISTORY_REPOSITORY =
             new PriceHistoryRepository(CRUD_REPOSITORY);
 
-    @AfterEach
+    @BeforeEach
     void clear() {
         var list = PRICE_HISTORY_REPOSITORY.findAllOrderById();
         for (var item : list) {
