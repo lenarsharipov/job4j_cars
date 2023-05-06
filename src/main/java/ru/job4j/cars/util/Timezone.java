@@ -1,5 +1,7 @@
 package ru.job4j.cars.util;
 
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
@@ -7,6 +9,7 @@ import java.util.TimeZone;
 /**
  * Utility Timezone class.
  */
+@NoArgsConstructor
 public class Timezone {
 
     /**
@@ -18,9 +21,6 @@ public class Timezone {
      * TIMEZONES constant list persists all supported Timezones.
      */
     public static final List<TimeZone> TIMEZONES;
-
-    private Timezone() {
-    }
 
     static {
         TIMEZONES = new ArrayList<>();

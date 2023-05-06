@@ -29,7 +29,7 @@ public class EngineRepository {
      * @param engine Engine.
      * @return Engine with specified ID.
      */
-    public Optional<Engine> create(Engine engine) {
+    public Optional<Engine> save(Engine engine) {
         Optional<Engine> result = Optional.empty();
         try {
             crudRepository.run(session -> session.save(engine));
@@ -58,7 +58,7 @@ public class EngineRepository {
      * List existed Engines ordered by ID ASC.
      * @return list of Engines.
      */
-    public List<Engine> findAllOrderById() {
+    public List<Engine> findAll() {
         List<Engine> result = Collections.emptyList();
         try {
             result = crudRepository.query(EngineQuery.FIND_ALL, Engine.class);

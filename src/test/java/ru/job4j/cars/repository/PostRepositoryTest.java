@@ -37,18 +37,18 @@ class PostRepositoryTest implements AutoCloseable {
 
     @BeforeAll
     static void initCar() {
-        var gasoline = ENGINE_REPOSITORY.findAllOrderById().get(0);
+        var gasoline = ENGINE_REPOSITORY.findAll().get(0);
         var volvo = MAKE_REPOSITORY.findAll().get(0);
         var current = new Owner();
         current.setName("current owner");
-        OWNER_REPOSITORY.create(current);
+        OWNER_REPOSITORY.save(current);
         car = new Car();
         car.setName("Test car");
         car.setEngine(gasoline);
         car.setOwner(current);
         car.setOwners(new HashSet<>());
         car.setMake(volvo);
-        CAR_REPOSITORY.create(car);
+        CAR_REPOSITORY.save(car);
     }
 
     private Post createPost() {
@@ -58,7 +58,7 @@ class PostRepositoryTest implements AutoCloseable {
         var defaultPoster = FILE_REPOSITORY.findAll().get(0);
         post.setFile(defaultPoster);
         post.setCar(car);
-        var user = USER_REPOSITORY.findAllOrderById().get(0);
+        var user = USER_REPOSITORY.findAll().get(0);
         post.setUser(user);
         post.setDescription("post desc");
         List<Post> participates = new ArrayList<>();
@@ -85,58 +85,58 @@ class PostRepositoryTest implements AutoCloseable {
 
     @Test
     void whenCreatePostThenGetItsOptional() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
-        var result = POST_REPOSITORY.create(post);
+        var result = POST_REPOSITORY.save(post);
         assertThat(result).isNotEmpty();
-        var posts = POST_REPOSITORY.findAllOrderById();
+        var posts = POST_REPOSITORY.findAll();
         assertThat(posts).isEqualTo(List.of(post));
     }
 
     @Test
     void whenDeletePersistedPostThenTrue() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
-        POST_REPOSITORY.create(post);
+        POST_REPOSITORY.save(post);
         var result = POST_REPOSITORY.delete(post.getId());
         assertThat(result).isTrue();
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
     }
 
     @Test
     void whenDeleteNotPersistedPostThenFalse() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
-        POST_REPOSITORY.create(post);
+        POST_REPOSITORY.save(post);
         var result = POST_REPOSITORY.delete(-1);
         assertThat(result).isFalse();
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEqualTo(List.of(post));
+        assertThat(POST_REPOSITORY.findAll()).isEqualTo(List.of(post));
     }
 
     @Test
     void whenUpdateCreatedPostThenGetTrue() {
         var post = createPost();
-        POST_REPOSITORY.create(post);
+        POST_REPOSITORY.save(post);
         post.setDescription("desc UPDATED");
         var result = POST_REPOSITORY.update(post);
         assertThat(result).isTrue();
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEqualTo(List.of(post));
+        assertThat(POST_REPOSITORY.findAll()).isEqualTo(List.of(post));
     }
 
     @Test
     void whenUpdateNotExistingPostThenGetFalse() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
         var result = POST_REPOSITORY.update(post);
         assertThat(result).isFalse();
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
     }
 
     @Test
     void whenFindByMakeExistingPostThenGetOptionalOfPost() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
-        POST_REPOSITORY.create(post);
+        POST_REPOSITORY.save(post);
         var result = POST_REPOSITORY.findByMake(post.getCar().getMake().getName());
         assertThat(result).isNotEmpty();
         assertThat(result).isEqualTo(List.of(post));
@@ -144,18 +144,18 @@ class PostRepositoryTest implements AutoCloseable {
 
     @Test
     void whenFindByMakeNotExistingMakeThenGetEmptyOptional() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
-        POST_REPOSITORY.create(post);
+        POST_REPOSITORY.save(post);
         var result = POST_REPOSITORY.findByMake("lada");
         assertThat(result).isEmpty();
     }
 
     @Test
     void whenFindByIdPersistedPostThenGetOptionalOfPost() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
-        POST_REPOSITORY.create(post);
+        POST_REPOSITORY.save(post);
         var result = POST_REPOSITORY.findById(post.getId());
         assertThat(result).isNotEmpty();
         assertThat(result.get()).isEqualTo(post);
@@ -163,16 +163,16 @@ class PostRepositoryTest implements AutoCloseable {
 
     @Test
     void whenFindByTodayThenGetListOfTodayPosts() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var todayPost1 = createPost();
         var todayPost2 = createPost();
-        POST_REPOSITORY.create(todayPost1);
-        POST_REPOSITORY.create(todayPost2);
+        POST_REPOSITORY.save(todayPost1);
+        POST_REPOSITORY.save(todayPost2);
         var oldPost = createPost();
         var oldDate = LocalDateTime.now().withYear(2000);
         oldPost.setCreated(oldDate);
-        POST_REPOSITORY.create(oldPost);
-        assertThat(POST_REPOSITORY.findAllOrderById())
+        POST_REPOSITORY.save(oldPost);
+        assertThat(POST_REPOSITORY.findAll())
                 .isEqualTo(List.of(todayPost1, todayPost2, oldPost));
         var result = POST_REPOSITORY.findTodayPosts();
         assertThat(result).isEqualTo(List.of(todayPost1, todayPost2));
@@ -180,12 +180,12 @@ class PostRepositoryTest implements AutoCloseable {
 
     @Test
     void whenFindByTodayThenGetEmptyListOfTodayPosts() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var oldPost = createPost();
         var oldDate = LocalDateTime.now().withYear(2000);
         oldPost.setCreated(oldDate);
-        POST_REPOSITORY.create(oldPost);
-        assertThat(POST_REPOSITORY.findAllOrderById())
+        POST_REPOSITORY.save(oldPost);
+        assertThat(POST_REPOSITORY.findAll())
                 .isEqualTo(List.of(oldPost));
         var result = POST_REPOSITORY.findTodayPosts();
         assertThat(result).isEmpty();
@@ -193,12 +193,12 @@ class PostRepositoryTest implements AutoCloseable {
 
     @Test
     void whenGetPostsWithPhotoThenGetListOfPosts() {
-        assertThat(POST_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var postWithPhoto = createPost();
         var postWithoutPhoto = createPost();
         postWithoutPhoto.setFile(null);
-        POST_REPOSITORY.create(postWithPhoto);
-        POST_REPOSITORY.create(postWithoutPhoto);
+        POST_REPOSITORY.save(postWithPhoto);
+        POST_REPOSITORY.save(postWithoutPhoto);
         assertThat(POST_REPOSITORY.findWithPhoto())
                 .isEqualTo(List.of(postWithPhoto));
     }

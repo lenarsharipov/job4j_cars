@@ -29,7 +29,7 @@ public class CarRepository {
      * @param car Car.
      * @return Optional<Car>. Car shall be with specified ID.
      */
-    public Optional<Car> create(Car car) {
+    public Optional<Car> save(Car car) {
         Optional<Car> result = Optional.empty();
         try {
             crudRepository.run(session -> session.save(car));
@@ -73,7 +73,7 @@ public class CarRepository {
      * List existed Cars ordered by ID ASC.
      * @return list of Cars.
      */
-    public List<Car> findAllOrderById() {
+    public List<Car> findAll() {
         List<Car> result = Collections.emptyList();
         try {
             result = crudRepository.query(CarQuery.FIND_ALL, Car.class);

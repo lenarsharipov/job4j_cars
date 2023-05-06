@@ -29,7 +29,7 @@ public class UserRepository {
      * @param user user.
      * @return User with specified ID.
      */
-    public Optional<User> create(User user) {
+    public Optional<User> save(User user) {
         Optional<User> result = Optional.empty();
         try {
             crudRepository.run(session -> session.save(user));
@@ -73,7 +73,7 @@ public class UserRepository {
      * List existed Users ordered by ID ASC.
      * @return list of users.
      */
-    public List<User> findAllOrderById() {
+    public List<User> findAll() {
         List<User> result = Collections.emptyList();
         try {
             result = crudRepository.query(UserQuery.FIND_ALL, User.class);

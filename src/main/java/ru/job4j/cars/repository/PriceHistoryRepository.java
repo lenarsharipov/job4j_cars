@@ -29,7 +29,7 @@ public class PriceHistoryRepository {
      * @param priceHistory priceHistory.
      * @return PriceHistory with specified ID.
      */
-    public Optional<PriceHistory> create(PriceHistory priceHistory) {
+    public Optional<PriceHistory> save(PriceHistory priceHistory) {
         Optional<PriceHistory> result = Optional.empty();
         try {
             crudRepository.run(session -> session.save(priceHistory));
@@ -73,7 +73,7 @@ public class PriceHistoryRepository {
      * List existed PriceHistory ordered by ID ASC.
      * @return list of priceHistory.
      */
-    public List<PriceHistory> findAllOrderById() {
+    public List<PriceHistory> findAll() {
         List<PriceHistory> result = Collections.emptyList();
         try {
             result = crudRepository.query(PriceHistoryQuery.FIND_ALL, PriceHistory.class);

@@ -30,7 +30,7 @@ public class PostRepository {
      * @param post Post.
      * @return Post with specified ID.
      */
-    public Optional<Post> create(Post post) {
+    public Optional<Post> save(Post post) {
         Optional<Post> result = Optional.empty();
         try {
             crudRepository.run(session -> session.save(post));
@@ -74,7 +74,7 @@ public class PostRepository {
      * List existed Posts ordered by ID ASC.
      * @return list of Posts.
      */
-    public List<Post> findAllOrderById() {
+    public List<Post> findAll() {
         List<Post> result = Collections.emptyList();
         try {
             result = crudRepository.query(PostQuery.FIND_ALL, Post.class);

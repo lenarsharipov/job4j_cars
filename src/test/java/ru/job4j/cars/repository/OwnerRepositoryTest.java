@@ -38,12 +38,12 @@ class OwnerRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenSaveOwnerThenGetOptionalOfOwner() {
-        assertThat(OWNER_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(OWNER_REPOSITORY.findAll()).isEmpty();
         var owner = new Owner();
         owner.setName("owner name");
-        var result = OWNER_REPOSITORY.create(owner);
+        var result = OWNER_REPOSITORY.save(owner);
         assertThat(result).isNotEmpty();
-        assertThat(OWNER_REPOSITORY.findAllOrderById()).isEqualTo(List.of(result.get()));
+        assertThat(OWNER_REPOSITORY.findAll()).isEqualTo(List.of(result.get()));
     }
 
     /**
@@ -53,9 +53,9 @@ class OwnerRepositoryTest implements AutoCloseable {
     void whenDeleteThenGetTrue() {
         var owner = new Owner();
         owner.setName("owner name");
-        OWNER_REPOSITORY.create(owner);
+        OWNER_REPOSITORY.save(owner);
         assertThat(OWNER_REPOSITORY.delete(owner.getId())).isTrue();
-        assertThat(OWNER_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(OWNER_REPOSITORY.findAll()).isEmpty();
     }
 
     /**

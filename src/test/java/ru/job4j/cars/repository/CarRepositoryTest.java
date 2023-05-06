@@ -32,7 +32,7 @@ class CarRepositoryTest implements AutoCloseable {
     @BeforeAll
     static void initOwner() {
         CURRENT.setName("current owner");
-        OWNER_REPOSITORY.create(CURRENT);
+        OWNER_REPOSITORY.save(CURRENT);
     }
 
     @AfterAll
@@ -57,7 +57,7 @@ class CarRepositoryTest implements AutoCloseable {
      * @return Car.
      */
     private Car createCar() {
-        var engines = ENGINE_REPOSITORY.findAllOrderById();
+        var engines = ENGINE_REPOSITORY.findAll();
         var volvo = MAKE_REPOSITORY.findAll().get(0);
         var car = new Car();
         car.setName("Test car");
@@ -73,12 +73,12 @@ class CarRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenSaveCarThenGetOptionalOfSavedCar() {
-        assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(CAR_REPOSITORY.findAll()).isEmpty();
         var car = createCar();
-        var result = CAR_REPOSITORY.create(car);
+        var result = CAR_REPOSITORY.save(car);
         assertThat(result).isNotEmpty();
         assertThat(result.get()).isEqualTo(car).usingRecursiveComparison();
-        assertThat(CAR_REPOSITORY.findAllOrderById()).isEqualTo(List.of(car));
+        assertThat(CAR_REPOSITORY.findAll()).isEqualTo(List.of(car));
     }
 
     /**
@@ -87,7 +87,7 @@ class CarRepositoryTest implements AutoCloseable {
     @Test
     void whenUpdateSavedCarThenGetTrueAndCarUpdated() {
         var car = createCar();
-        CAR_REPOSITORY.create(car);
+        CAR_REPOSITORY.save(car);
 
         car.setName("UPDATED name");
         assertThat(CAR_REPOSITORY.update(car)).isTrue();
@@ -105,7 +105,7 @@ class CarRepositoryTest implements AutoCloseable {
         var car = createCar();
 
         assertThat(CAR_REPOSITORY.update(car)).isFalse();
-        assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(CAR_REPOSITORY.findAll()).isEmpty();
     }
 
     /**
@@ -113,13 +113,13 @@ class CarRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenFindByIdThenGetOptionalOfCar() {
-        assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(CAR_REPOSITORY.findAll()).isEmpty();
         var car = createCar();
-        CAR_REPOSITORY.create(car);
+        CAR_REPOSITORY.save(car);
 
         assertThat(CAR_REPOSITORY.findById(car.getId()))
                 .isEqualTo(Optional.of(car)).usingRecursiveComparison();
-        assertThat(CAR_REPOSITORY.findAllOrderById()).isEqualTo(List.of(car));
+        assertThat(CAR_REPOSITORY.findAll()).isEqualTo(List.of(car));
     }
 
     /**
@@ -127,7 +127,7 @@ class CarRepositoryTest implements AutoCloseable {
      */
     @Test
     void whenCarNotFoundByIdThenGetEmptyOptional() {
-        assertThat(CAR_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(CAR_REPOSITORY.findAll()).isEmpty();
         assertThat(CAR_REPOSITORY.findById(-1)).isEmpty();
     }
 

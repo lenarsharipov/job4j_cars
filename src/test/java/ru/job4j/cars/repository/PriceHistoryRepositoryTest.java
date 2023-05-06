@@ -42,9 +42,9 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
 
         item.setBefore(100L);
         item.setAfter(150L);
-        var result = PRICE_HISTORY_REPOSITORY.create(item);
+        var result = PRICE_HISTORY_REPOSITORY.save(item);
         assertThat(result).isNotEmpty();
-        assertThat(PRICE_HISTORY_REPOSITORY.findAllOrderById()).isEqualTo(List.of(item));
+        assertThat(PRICE_HISTORY_REPOSITORY.findAll()).isEqualTo(List.of(item));
     }
 
     /**
@@ -55,7 +55,7 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
         var item = new PriceHistory();
         item.setBefore(100L);
         item.setAfter(150L);
-        PRICE_HISTORY_REPOSITORY.create(item);
+        PRICE_HISTORY_REPOSITORY.save(item);
         item.setAfter(75L);
         item.setAfter(150L);
         var result = PRICE_HISTORY_REPOSITORY.update(item);
@@ -75,7 +75,7 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
         item.setAfter(150L);
         var result = PRICE_HISTORY_REPOSITORY.update(item);
         assertThat(result).isFalse();
-        assertThat(PRICE_HISTORY_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(PRICE_HISTORY_REPOSITORY.findAll()).isEmpty();
     }
 
     /**
@@ -86,9 +86,9 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
         var item = new PriceHistory();
         item.setBefore(100L);
         item.setAfter(150L);
-        PRICE_HISTORY_REPOSITORY.create(item);
+        PRICE_HISTORY_REPOSITORY.save(item);
         assertThat(PRICE_HISTORY_REPOSITORY.delete(item.getId())).isTrue();
-        assertThat(PRICE_HISTORY_REPOSITORY.findAllOrderById()).isEmpty();
+        assertThat(PRICE_HISTORY_REPOSITORY.findAll()).isEmpty();
     }
 
     /**
@@ -99,9 +99,9 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
         var item = new PriceHistory();
         item.setBefore(100L);
         item.setAfter(150L);
-        PRICE_HISTORY_REPOSITORY.create(item);
+        PRICE_HISTORY_REPOSITORY.save(item);
         assertThat(PRICE_HISTORY_REPOSITORY.delete(-1)).isFalse();
-        assertThat(PRICE_HISTORY_REPOSITORY.findAllOrderById()).isEqualTo(List.of(item));
+        assertThat(PRICE_HISTORY_REPOSITORY.findAll()).isEqualTo(List.of(item));
     }
 
     /**
@@ -112,7 +112,7 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
         var item = new PriceHistory();
         item.setBefore(100L);
         item.setAfter(150L);
-        PRICE_HISTORY_REPOSITORY.create(item);
+        PRICE_HISTORY_REPOSITORY.save(item);
         var result = PRICE_HISTORY_REPOSITORY.findById(item.getId());
         assertThat(result).isNotEmpty();
         assertThat(result.get()).isEqualTo(item).usingRecursiveComparison();

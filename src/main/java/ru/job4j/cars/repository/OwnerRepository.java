@@ -29,7 +29,7 @@ public class OwnerRepository {
      * @param owner Owner.
      * @return Owner with specified ID.
      */
-    public Optional<Owner> create(Owner owner) {
+    public Optional<Owner> save(Owner owner) {
         Optional<Owner> result = Optional.empty();
         try {
             crudRepository.run(session -> session.save(owner));
@@ -58,7 +58,7 @@ public class OwnerRepository {
      * List existed Owners ordered by ID ASC.
      * @return list of Owners.
      */
-    public List<Owner> findAllOrderById() {
+    public List<Owner> findAll() {
         List<Owner> result = Collections.emptyList();
         try {
             result = crudRepository.query(OwnerQuery.FIND_ALL, Owner.class);
