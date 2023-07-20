@@ -6,10 +6,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.*;
 import ru.job4j.cars.model.Car;
-import ru.job4j.cars.model.Owner;
-import ru.job4j.cars.util.TestQuery;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,31 +21,22 @@ class CarRepositoryTest implements AutoCloseable {
             .buildSessionFactory();
     private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SESSION_FACTORY);
     private static final CarRepository CAR_REPOSITORY = new CarRepository(CRUD_REPOSITORY);
-    private static final EngineRepository ENGINE_REPOSITORY = new EngineRepository(CRUD_REPOSITORY);
-    private static final OwnerRepository OWNER_REPOSITORY = new OwnerRepository(CRUD_REPOSITORY);
-    private static final MakeRepository MAKE_REPOSITORY = new MakeRepository(CRUD_REPOSITORY);
-    private static final Owner CURRENT = new Owner();
-
-    @BeforeAll
-    static void initOwner() {
-        CURRENT.setName("current owner");
-        OWNER_REPOSITORY.save(CURRENT);
-    }
-
-    @AfterAll
-    static void deleteOwners() {
-        CRUD_REPOSITORY.run(
-                session -> session
-                        .createSQLQuery(TestQuery.DELETE_OWNERS)
-                        .executeUpdate());
-    }
+    private static final ConditionRepository CONDITION_REPOSITORY =
+            new ConditionRepository(CRUD_REPOSITORY);
+    private static final YearRepository YEAR_REPOSITORY = new YearRepository(CRUD_REPOSITORY);
+    private static final ColorRepository COLOR_REPOSITORY = new ColorRepository(CRUD_REPOSITORY);
+    private static final OwnerCountRepository OWNER_COUNT_REPOSITORY =
+            new OwnerCountRepository(CRUD_REPOSITORY);
+    private static final ModificationRepository MODIFICATION_REPOSITORY =
+            new ModificationRepository(CRUD_REPOSITORY);
+    public static final String DELETE_CAR = "DELETE CAR";
 
     @BeforeEach
     @AfterEach
     void clearTable() {
         CRUD_REPOSITORY.run(
                 session -> session
-                        .createSQLQuery(TestQuery.DELETE_CAR)
+                        .createSQLQuery(DELETE_CAR)
                         .executeUpdate());
     }
 
@@ -57,14 +45,21 @@ class CarRepositoryTest implements AutoCloseable {
      * @return Car.
      */
     private Car createCar() {
-        var engines = ENGINE_REPOSITORY.findAll();
-        var volvo = MAKE_REPOSITORY.findAll().get(0);
+        var modificationList = MODIFICATION_REPOSITORY.findAll();
+        var dusterGen1 = modificationList.get(0);
+        var conditions = CONDITION_REPOSITORY.findAll();
+        var years = YEAR_REPOSITORY.findAll();
+        var colors = COLOR_REPOSITORY.findAll();
+        var ownerCounts = OWNER_COUNT_REPOSITORY.findAll();
         var car = new Car();
-        car.setName("Test car");
-        car.setEngine(engines.get(0));
-        car.setOwner(CURRENT);
-        car.setOwners(new HashSet<>());
-        car.setMake(volvo);
+        car.setName("Test Duster");
+        car.setMileage(150_000);
+        car.setOwnerName("Test Owner");
+        car.setModification(modificationList.get(0));
+        car.setYear(years.get(17));
+        car.setCondition(conditions.get(0));
+        car.setColor(colors.get(0));
+        car.setOwnerCount(ownerCounts.get(3));
         return car;
     }
 

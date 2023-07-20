@@ -1,1 +1,0 @@
-INSERT INTO make(name) VALUES('VOLVO'), ('LADA'), ('BMW');

@@ -1,1 +1,0 @@
-INSERT INTO engine(name) VALUES('Gasoline'), ('Diesel'), ('LPG'), ('Electric');

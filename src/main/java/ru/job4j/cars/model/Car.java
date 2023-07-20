@@ -1,45 +1,63 @@
 package ru.job4j.cars.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "car")
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Car {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private Integer id;
 
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "engine_id", foreignKey = @ForeignKey(name = "ENGINE_ID_FK"))
-    private Engine engine;
+    @Column(name = "mileage", nullable = false)
+    private Integer mileage;
+
+    @Column(name = "owner_name", nullable = false)
+    private String ownerName;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "OWNER_ID_FK"))
-    private Owner owner;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "history_owners", joinColumns = {
-            @JoinColumn(name = "car_id", nullable = false, updatable = false)},
-            inverseJoinColumns = {
-            @JoinColumn(name = "owner_id", nullable = false, updatable = false)})
-    private Set<Owner> owners = new HashSet<>();
+    @JoinColumn(
+            name = "year_id",
+            foreignKey = @ForeignKey(name = "YEAR_ID_FK"),
+            nullable = false)
+    private Year year;
 
     @ManyToOne
-    @JoinColumn(name = "make_id", foreignKey = @ForeignKey(name = "MAKE_ID_FK"))
-    private Make make;
+    @JoinColumn(
+            name = "condition_id",
+            foreignKey = @ForeignKey(name = "CONDITION_ID_FK"),
+            nullable = false)
+    private Condition condition;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "color_id",
+            foreignKey = @ForeignKey(name = "COLOR_ID_FK"),
+            nullable = false)
+    private Color color;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "owner_count_id",
+            foreignKey = @ForeignKey(name = "OWNER_COUNT_ID_FK"),
+            nullable = false)
+    private OwnerCount ownerCount;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "modification_id",
+            foreignKey = @ForeignKey(name = "MODIFICATION_ID_FK"),
+            nullable = false)
+    private Modification modification;
 
 }

@@ -5,19 +5,13 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.*;
-import ru.job4j.cars.model.Car;
-import ru.job4j.cars.model.Owner;
-import ru.job4j.cars.model.Post;
-import ru.job4j.cars.model.PriceHistory;
-import ru.job4j.cars.util.TestQuery;
+import ru.job4j.cars.model.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 class PostRepositoryTest implements AutoCloseable {
     private static final StandardServiceRegistry REGISTRY = new StandardServiceRegistryBuilder()
             .configure()
@@ -28,41 +22,81 @@ class PostRepositoryTest implements AutoCloseable {
     private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SESSION_FACTORY);
     private static final PostRepository POST_REPOSITORY = new PostRepository(CRUD_REPOSITORY);
     private static final UserRepository USER_REPOSITORY = new UserRepository(CRUD_REPOSITORY);
-    private static final EngineRepository ENGINE_REPOSITORY = new EngineRepository(CRUD_REPOSITORY);
-    private static final MakeRepository MAKE_REPOSITORY = new MakeRepository(CRUD_REPOSITORY);
-    private static final OwnerRepository OWNER_REPOSITORY = new OwnerRepository(CRUD_REPOSITORY);
-    private static final CarRepository CAR_REPOSITORY = new CarRepository(CRUD_REPOSITORY);
+
     private static final FileRepository FILE_REPOSITORY = new FileRepository(CRUD_REPOSITORY);
+    private static final CarRepository CAR_REPOSITORY = new CarRepository(CRUD_REPOSITORY);
+    private static final ConditionRepository CONDITION_REPOSITORY =
+            new ConditionRepository(CRUD_REPOSITORY);
+    private static final YearRepository YEAR_REPOSITORY = new YearRepository(CRUD_REPOSITORY);
+    private static final ColorRepository COLOR_REPOSITORY = new ColorRepository(CRUD_REPOSITORY);
+    private static final OwnerCountRepository OWNER_COUNT_REPOSITORY =
+            new OwnerCountRepository(CRUD_REPOSITORY);
+    private static final ModificationRepository MODIFICATION_REPOSITORY =
+            new ModificationRepository(CRUD_REPOSITORY);
+    private static final PriceHistoryRepository PRICE_HISTORY_REPOSITORY =
+            new PriceHistoryRepository(CRUD_REPOSITORY);
+    public static final String DELETE_CAR = "DELETE CAR";
+    public static final String DELETE_POST = "DELETE POST";
+    public static final String DELETE_PRICE_HISTORY = "DELETE PRICE_HISTORY";
     private static Car car;
+    private static final User USER = USER_REPOSITORY.findAll().get(0);
+    private static List<File> files;
+    private static List<PriceHistory> priceHistories;
 
     @BeforeAll
-    static void initCar() {
-        var gasoline = ENGINE_REPOSITORY.findAll().get(0);
-        var volvo = MAKE_REPOSITORY.findAll().get(0);
-        var current = new Owner();
-        current.setName("current owner");
-        OWNER_REPOSITORY.save(current);
+    static void init() {
+        priceHistories = new ArrayList<>();
+        var firstPrice = new PriceHistory();
+        firstPrice.setBefore(0L);
+        firstPrice.setAfter(17_000L);
+        PRICE_HISTORY_REPOSITORY.save(firstPrice);
+        var lastPrice = new PriceHistory();
+        lastPrice.setBefore(firstPrice.getAfter());
+        lastPrice.setAfter(16_500L);
+        PRICE_HISTORY_REPOSITORY.save(lastPrice);
+        priceHistories.add(firstPrice);
+        priceHistories.add(lastPrice);
+
+        files = new ArrayList<>();
+        var firstPoster = new File();
+        firstPoster.setName("duster_1gen_01.png");
+        firstPoster.setPath("files/duster_1gen_01.png");
+        FILE_REPOSITORY.save(firstPoster);
+        var secondPoster = new File();
+        secondPoster.setName("duster_1gen_02.png");
+        secondPoster.setPath("files/duster_1gen_02.png");
+        FILE_REPOSITORY.save(secondPoster);
+        files.add(firstPoster);
+        files.add(secondPoster);
+
+        var modificationList = MODIFICATION_REPOSITORY.findAll();
+        var conditions = CONDITION_REPOSITORY.findAll();
+        var years = YEAR_REPOSITORY.findAll();
+        var colors = COLOR_REPOSITORY.findAll();
+        var ownerCounts = OWNER_COUNT_REPOSITORY.findAll();
         car = new Car();
-        car.setName("Test car");
-        car.setEngine(gasoline);
-        car.setOwner(current);
-        car.setOwners(new HashSet<>());
-        car.setMake(volvo);
+        car.setName("Test Duster");
+        car.setMileage(150_000);
+        car.setOwnerName("Test Owner");
+        car.setModification(modificationList.get(0));
+        car.setYear(years.get(17));
+        car.setCondition(conditions.get(0));
+        car.setColor(colors.get(0));
+        car.setOwnerCount(ownerCounts.get(3));
         CAR_REPOSITORY.save(car);
     }
 
     private Post createPost() {
         var post = new Post();
-        var priceHistoryList = new ArrayList<PriceHistory>();
-        post.setPriceHistories(priceHistoryList);
-        var defaultPoster = FILE_REPOSITORY.findAll().get(0);
-        post.setFile(defaultPoster);
+        post.setPriceHistories(priceHistories);
+        post.setFiles(files);
+        post.setHasPhoto(true);
+        post.setSold(false);
         post.setCar(car);
-        var user = USER_REPOSITORY.findAll().get(0);
-        post.setUser(user);
+        post.setUser(USER);
         post.setDescription("post desc");
-        List<Post> participates = new ArrayList<>();
-        post.setParticipates(participates);
+        List<User> postFollowers = new ArrayList<>();
+        post.setPostFollowers(postFollowers);
         return post;
     }
 
@@ -70,17 +104,21 @@ class PostRepositoryTest implements AutoCloseable {
     @AfterEach
     void clearPostRepo() {
         CRUD_REPOSITORY.run(session ->
-                session.createSQLQuery(TestQuery.DELETE_POST).executeUpdate()
+                session.createSQLQuery(DELETE_POST).executeUpdate()
         );
     }
 
     @AfterAll
     static void clear() {
         CRUD_REPOSITORY.run(session -> {
-                session.createSQLQuery(TestQuery.DELETE_CAR).executeUpdate();
-                session.createSQLQuery(TestQuery.DELETE_OWNERS).executeUpdate();
+                session.createSQLQuery(DELETE_PRICE_HISTORY).executeUpdate();
+                session.createSQLQuery(DELETE_CAR).executeUpdate();
             }
         );
+        var files = FILE_REPOSITORY.findAll();
+        for (var index = 1; index < files.size(); index++) {
+            FILE_REPOSITORY.deleteById(files.get(index).getId());
+        }
     }
 
     @Test
@@ -89,6 +127,7 @@ class PostRepositoryTest implements AutoCloseable {
         var post = createPost();
         var result = POST_REPOSITORY.save(post);
         assertThat(result).isNotEmpty();
+        assertThat(result.get().getPriceHistories().get(0).getAfter()).isEqualTo(17_000L);
         var posts = POST_REPOSITORY.findAll();
         assertThat(posts).isEqualTo(List.of(post));
     }
@@ -137,7 +176,12 @@ class PostRepositoryTest implements AutoCloseable {
         assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
         POST_REPOSITORY.save(post);
-        var result = POST_REPOSITORY.findByMake(post.getCar().getMake().getName());
+        var result = POST_REPOSITORY
+                .findByMake(
+                        post.getCar()
+                                .getModification()
+                                .getMake()
+                                .getName());
         assertThat(result).isNotEmpty();
         assertThat(result).isEqualTo(List.of(post));
     }
@@ -147,7 +191,7 @@ class PostRepositoryTest implements AutoCloseable {
         assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var post = createPost();
         POST_REPOSITORY.save(post);
-        var result = POST_REPOSITORY.findByMake("lada");
+        var result = POST_REPOSITORY.findByMake("unknown");
         assertThat(result).isEmpty();
     }
 
@@ -196,7 +240,8 @@ class PostRepositoryTest implements AutoCloseable {
         assertThat(POST_REPOSITORY.findAll()).isEmpty();
         var postWithPhoto = createPost();
         var postWithoutPhoto = createPost();
-        postWithoutPhoto.setFile(null);
+        postWithoutPhoto.setHasPhoto(false);
+        postWithoutPhoto.setFiles(new ArrayList<>());
         POST_REPOSITORY.save(postWithPhoto);
         POST_REPOSITORY.save(postWithoutPhoto);
         assertThat(POST_REPOSITORY.findWithPhoto())

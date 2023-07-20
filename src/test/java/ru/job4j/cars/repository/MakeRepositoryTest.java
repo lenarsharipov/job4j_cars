@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cars.model.Make;
 
@@ -20,16 +21,50 @@ class MakeRepositoryTest implements AutoCloseable {
             .buildSessionFactory();
     private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SESSION_FACTORY);
     private static final MakeRepository MAKE_REPOSITORY = new MakeRepository(CRUD_REPOSITORY);
+    private static final ModelRepository MODEL_REPOSITORY = new ModelRepository(CRUD_REPOSITORY);
+    private static List<Make> makeList;
 
-    /**
-     * Get list of all persisted makes.
-     */
+    @BeforeAll
+    static void init() {
+        var modelList = MODEL_REPOSITORY.findAll();
+        var ford = new Make();
+        ford.setId(1);
+        ford.setName("Ford");
+        ford.setModels(List.of(modelList.get(1)));
+        var hyundai = new Make();
+        hyundai.setId(2);
+        hyundai.setName("Hyundai");
+        hyundai.setModels(List.of(modelList.get(2)));
+        var renault = new Make();
+        renault.setId(3);
+        renault.setModels(List.of(modelList.get(0)));
+        renault.setName("Renault");
+        var volvo = new Make();
+        volvo.setId(4);
+        volvo.setName("Volvo");
+        volvo.setModels(List.of(modelList.get(3)));
+        makeList = List.of(ford, hyundai, renault, volvo);
+    }
+
     @Test
-    void whenFindAllThenGetPersistedMakesList() {
-        var volvo = new Make(1, "VOLVO");
-        var lada = new Make(2, "LADA");
-        var bmw = new Make(3, "BMW");
-        assertThat(MAKE_REPOSITORY.findAll()).isEqualTo(List.of(volvo, lada, bmw));
+    void whenFindAllThenGetListOfMakes() {
+        var result = MAKE_REPOSITORY.findAll();
+        assertThat(result).isNotEmpty();
+        assertThat(result).isEqualTo(makeList);
+    }
+
+    @Test
+    void whenFindByIDThenGetMakeOptional() {
+        var result = MAKE_REPOSITORY.findById(1);
+        System.out.println(result);
+        assertThat(result).isNotEmpty();
+        assertThat(result.get()).isEqualTo(makeList.get(0)).usingRecursiveComparison();
+    }
+
+    @Test
+    void whenFindByNotExistingIDThenGetEmptyOptional() {
+        var result = MAKE_REPOSITORY.findById(-1);
+        assertThat(result).isEmpty();
     }
 
     @Override

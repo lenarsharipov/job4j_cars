@@ -1,1 +1,0 @@
-ALTER TABLE car ADD COLUMN make_id INT REFERENCES make(id) NOT NULL;

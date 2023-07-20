@@ -1,14 +1,17 @@
 package ru.job4j.cars.controller;
 
+import net.jcip.annotations.ThreadSafe;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@ThreadSafe
+@Controller
 public class IndexController {
 
-    @GetMapping("/index")
+    @GetMapping({"/", "/index"})
     public String getIndex() {
-        return "Hello World!";
+        return "index";
     }
 
 }

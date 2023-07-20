@@ -6,9 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.Engine;
-import ru.job4j.cars.util.EngineQuery;
-import ru.job4j.cars.util.Key;
-import ru.job4j.cars.util.Message;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,40 +16,13 @@ import java.util.Optional;
 @AllArgsConstructor
 @Repository
 public class EngineRepository {
-
     private static final Logger LOG = LoggerFactory.getLogger(EngineRepository.class.getName());
-
     private final CrudRepository crudRepository;
-
-    /**
-     * Save Engine in DB.
-     * @param engine Engine.
-     * @return Engine with specified ID.
-     */
-    public Optional<Engine> save(Engine engine) {
-        Optional<Engine> result = Optional.empty();
-        try {
-            crudRepository.run(session -> session.save(engine));
-            result = Optional.of(engine);
-        } catch (Exception exception) {
-            LOG.error(Message.ENGINE_NOT_SAVED, exception);
-        }
-        return result;
-    }
-
-    /**
-     * Delete Engine by ID.
-     * @param id ID.
-     */
-    public boolean delete(int id) {
-        var result = false;
-        try {
-            result = crudRepository.isExecuted(EngineQuery.DELETE, Map.of(Key.ID, id));
-        } catch (Exception exception) {
-            LOG.error(Message.ENGINE_NOT_DELETED, exception);
-        }
-        return result;
-    }
+    private static final String FIND_ALL = "FROM Engine e ORDER BY e.id ASC";
+    public static final String FIND_BY_ID = "FROM Engine e WHERE e.id = :fId";
+    public static final String ENGINES_NOT_LISTED = "Unable to list Engines";
+    public static final String ENGINE_NOT_FOUND = "Unable to get Engine with specified ID";
+    public static final String ID = "fId";
 
     /**
      * List existed Engines ordered by ID ASC.
@@ -61,9 +31,9 @@ public class EngineRepository {
     public List<Engine> findAll() {
         List<Engine> result = Collections.emptyList();
         try {
-            result = crudRepository.query(EngineQuery.FIND_ALL, Engine.class);
+            result = crudRepository.query(FIND_ALL, Engine.class);
         } catch (Exception exception) {
-            LOG.error(Message.ENGINES_NOT_LISTED, exception);
+            LOG.error(ENGINES_NOT_LISTED, exception);
         }
         return result;
     }
@@ -76,11 +46,10 @@ public class EngineRepository {
         Optional<Engine> result = Optional.empty();
         try {
             result = crudRepository.optional(
-                    EngineQuery.FIND_BY_ID, Engine.class,
-                    Map.of(Key.ID, id)
+                    FIND_BY_ID, Engine.class, Map.of(ID, id)
             );
         } catch (Exception exception) {
-            LOG.error(Message.ENGINE_NOT_FOUND, exception);
+            LOG.error(ENGINE_NOT_FOUND, exception);
         }
         return result;
     }

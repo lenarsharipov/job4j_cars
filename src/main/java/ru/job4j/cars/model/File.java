@@ -17,10 +17,12 @@ public class File {
     private Integer id;
 
     @NonNull
+    @Column(name = "name", nullable = false)
     private String name;
 
     @NonNull
     @EqualsAndHashCode.Include
+    @Column(name = "path", nullable = false, unique = true)
     private String path;
 
 }

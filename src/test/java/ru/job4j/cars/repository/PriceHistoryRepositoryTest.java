@@ -7,13 +7,11 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cars.model.PriceHistory;
-import ru.job4j.cars.util.TestQuery;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 class PriceHistoryRepositoryTest implements AutoCloseable {
     private static final StandardServiceRegistry REGISTRY = new StandardServiceRegistryBuilder()
             .configure()
@@ -24,12 +22,13 @@ class PriceHistoryRepositoryTest implements AutoCloseable {
     private static final CrudRepository CRUD_REPOSITORY = new CrudRepository(SESSION_FACTORY);
     private static final PriceHistoryRepository PRICE_HISTORY_REPOSITORY =
             new PriceHistoryRepository(CRUD_REPOSITORY);
+    public static final String DELETE_PRICE_HISTORY = "DELETE PRICE_HISTORY";
 
     @BeforeEach
     void clearTable() {
         CRUD_REPOSITORY.run(
                 session -> session
-                        .createSQLQuery(TestQuery.DELETE_PRICE_HISTORY)
+                        .createSQLQuery(DELETE_PRICE_HISTORY)
                         .executeUpdate());
     }
 

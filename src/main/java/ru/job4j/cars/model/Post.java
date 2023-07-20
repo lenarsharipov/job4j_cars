@@ -1,9 +1,7 @@
 package ru.job4j.cars.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,8 +10,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "post")
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Post {
@@ -22,11 +18,18 @@ public class Post {
     @EqualsAndHashCode.Include
     private Integer id;
 
+    @Column(name = "description", nullable = false)
     private String description;
 
     private LocalDateTime created = LocalDateTime.now();
 
-    @ManyToOne()
+    @Column(name = "is_sold", nullable = false)
+    private boolean isSold;
+
+    @Column(name = "has_photo", nullable = false)
+    private boolean hasPhoto;
+
+    @ManyToOne
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "USER_ID_FK"))
     private User user;
 
@@ -40,14 +43,14 @@ public class Post {
 
     @ManyToMany
     @JoinTable(
-            name = "participates",
+            name = "post_follower",
             joinColumns = {@JoinColumn(name = "post_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")}
     )
-    private List<Post> participates = new ArrayList<>();
+    private List<User> postFollowers = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "file_id", foreignKey = @ForeignKey(name = "FILE_ID_FK"))
-    private File file;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "post_id")
+    private List<File> files = new ArrayList<>();
 
 }

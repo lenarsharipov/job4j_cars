@@ -13,12 +13,29 @@
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL82Dialect</property>
 
+        <mapping class="ru.job4j.cars.model.Condition" />
+        <mapping class="ru.job4j.cars.model.Color" />
+        <mapping class="ru.job4j.cars.model.OwnerCount" />
+        <mapping class="ru.job4j.cars.model.MakeModel" />
+        <mapping class="ru.job4j.cars.model.MakeModelGeneration" />
+        <mapping class="ru.job4j.cars.model.Modification" />
+        <mapping class="ru.job4j.cars.model.Trim" />
+        <mapping class="ru.job4j.cars.model.Generation" />
+        <mapping class="ru.job4j.cars.model.Model" />
+        <mapping class="ru.job4j.cars.model.Transmission" />
+        <mapping class="ru.job4j.cars.model.Drivetrain" />
+        <mapping class="ru.job4j.cars.model.BodyStyle" />
+        <mapping class="ru.job4j.cars.model.Door" />
+        <mapping class="ru.job4j.cars.model.Cylinder" />
+        <mapping class="ru.job4j.cars.model.EngineCapacity" />
+        <mapping class="ru.job4j.cars.model.HorsePower" />
+        <mapping class="ru.job4j.cars.model.FuelType" />
+        <mapping class="ru.job4j.cars.model.Year" />
         <mapping class="ru.job4j.cars.model.User" />
         <mapping class="ru.job4j.cars.model.Post" />
         <mapping class="ru.job4j.cars.model.PriceHistory" />
         <mapping class="ru.job4j.cars.model.Car" />
         <mapping class="ru.job4j.cars.model.Engine" />
-        <mapping class="ru.job4j.cars.model.Owner" />
         <mapping class="ru.job4j.cars.model.File" />
         <mapping class="ru.job4j.cars.model.Make" />
     </session-factory>
